@@ -71,7 +71,7 @@ rotate_angle_stop = 10  # 旋转终止角度  如果stop = step，则只旋转�
 rotate_angle_step = 10  # 旋转步长
 rotate_angle_list = np.arange(rotate_angle_start, rotate_angle_stop, rotate_angle_step)
 roi_array = [-256, 255, -456, 55]  # [roi_x_min, roi_x_max, roi_y_min, roi_y_max]
-sample_tilt_x = 0  # 样品绕x轴旋转的角度
+sample_tilt_x = -55  # 样品绕x轴旋转的角度
 pixel_size = 2  # 像素大小，单位为nm
 energy = 500  # 电子束能量，单位：eV
 epx = 500  # 每像素电子数
