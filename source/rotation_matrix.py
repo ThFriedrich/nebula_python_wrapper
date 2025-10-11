@@ -43,3 +43,41 @@ def rotation_matrix(tilt_x: float = 0, tilt_y: float = 0, rotate_angle: float = 
     # 转换为旋转矩阵
     rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
     return rotation_matrix
+
+import torch
+if __name__ == "__main__":
+    xmax = 300
+    xmin = -300
+    ymax = 300
+    ymin = -300
+    base_z = 0
+    v = torch.tensor([
+        [xmax, ymin, base_z],
+        [xmin, ymin, base_z],
+        [xmax, ymax, base_z],
+        [xmin, ymax, base_z]
+    ], dtype=torch.float32)
+    print("原始点坐标:")
+    print(v)
+
+    tilt_x_rad = torch.tensor(np.radians(55), dtype=torch.float32)
+    cos_tx = torch.cos(tilt_x_rad)
+    sin_tx = torch.sin(tilt_x_rad)
+    y = v[:, 1] * cos_tx - v[:, 2] * sin_tx
+    z = v[:, 1] * sin_tx + v[:, 2] * cos_tx
+    v[:, 1] = y
+    v[:, 2] = z
+
+    R = torch.tensor(rotation_matrix(tilt_x=55, rotate_angle=45), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+    points = torch.stack([v[:, 0], v[:, 1], v[:, 2]], dim=1).to(R.device)
+    rotated_points = torch.mm(points, R.T)  # 矩阵乘法
+    print("绕x轴旋转后点坐标:")
+    print(v)
+    print("旋转后的点坐标:")
+    print(rotated_points)
+    xmax = rotated_points[:, 0].max()
+    xmin = rotated_points[:, 0].min()
+    ymax = rotated_points[:, 1].max()
+    ymin = rotated_points[:, 1].min()
+    print(xmax, xmin, ymax, ymin)
+    print(R)
