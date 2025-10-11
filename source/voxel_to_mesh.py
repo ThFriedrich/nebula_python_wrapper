@@ -63,6 +63,9 @@ def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sam
     # 应用缩放
     v *= final_size_scale
     
+    # 保存原始顶点
+    v_orig = v.clone()
+
     # 预先定义旋转变量，避免在后续代码中未定义的问题
     cos_tx = cos_ty = 1.0
     sin_tx = sin_ty = 0.0
@@ -141,14 +144,44 @@ def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sam
         if sample_tilt_x != 0:
             y = base_points[:, 1] * cos_tx - base_points[:, 2] * sin_tx
             z = base_points[:, 1] * sin_tx + base_points[:, 2] * cos_tx
+            
             base_points[:, 1] = y
             base_points[:, 2] = z
+
+            R = torch.tensor(rotation_matrix(tilt_x=sample_tilt_x, rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+            points = torch.stack([base_points[:, 0], base_points[:, 1], base_points[:, 2]], dim=1).to(R.device)
+            rotated_points = torch.mm(points, R.T)  # 矩阵乘法
+            
+            base_points[:, 0] = rotated_points[:, 0]
+            base_points[:, 1] = rotated_points[:, 1]
+            base_points[:, 2] = rotated_points[:, 2]
+
+
 
         if sample_tilt_y != 0:
             x = base_points[:, 0] * cos_ty + base_points[:, 2] * sin_ty
             z = -base_points[:, 0] * sin_ty + base_points[:, 2] * cos_ty
             base_points[:, 0] = x
             base_points[:, 2] = z
+
+            R = rotation_matrix(tilt_y=sample_tilt_y, rotate_angle=sample_tilt_new_z)
+            R = torch.tensor(R, dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+            points = torch.stack([base_points[:, 0], base_points[:, 1], base_points[:, 2]], dim=1).to(R.device)
+            rotated_points = torch.mm(points, R.T)  # 矩阵乘法
+            
+            base_points[:, 0] = rotated_points[:, 0]
+            base_points[:, 1] = rotated_points[:, 1]
+            base_points[:, 2] = rotated_points[:, 2]
+
+    else:
+        R = torch.tensor(rotation_matrix(rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+        points = torch.stack([base_points[:, 0], base_points[:, 1], base_points[:, 2]], dim=1).to(R.device)
+        rotated_points = torch.mm(points, R.T)  # 矩阵乘法
+
+        # 更新顶点坐标
+        base_points[:, 0] = rotated_points[:, 0]
+        base_points[:, 1] = rotated_points[:, 1]
+        base_points[:, 2] = rotated_points[:, 2]
 
     p1 = base_points[0]
     p2 = base_points[1]
@@ -314,7 +347,8 @@ def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sam
         f.write("\n")
         f.write(env_str)
 
-    return v, faces, d_zmin, d_zmax, mesh_path, R
+    return v, faces, d_zmin, d_zmax, mesh_path, R, v_orig
+
 
 def generate_mesh_from_voxel(voxel_path, output_path, final_side=1000, tilt_x=0, tilt_y=0, pad_scale=1.0, length=20, reverse=False):  # final_side设置为1000
     """
