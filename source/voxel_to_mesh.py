@@ -10,6 +10,8 @@ import random
 import math
 import trimesh  # 用于读取STL文件
 from rotation_matrix import rotation_matrix
+import pyvista as pv
+
 def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sample_tilt_x=0, sample_tilt_new_z=0, sample_tilt_y=0, det_tilt_x=0, det_tilt_y=0):  # final_side设置为1000
     """
     从STL文件生成网格
@@ -40,6 +42,7 @@ def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sam
     verts = torch.tensor(mesh.vertices * scale, dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')   
     #verts = torch.tensor(mesh.vertices * 10, dtype=torch.float32).cuda()
     faces = torch.tensor(mesh.faces, dtype=torch.int32).to('cuda' if torch.cuda.is_available() else 'cpu')
+    print("faces", faces)
     t_end = time.time()
     
     #(f"顶点数: {verts.size(0)}, 面片数: {faces.size(0)}, 用时: {t_end - t_start:.1f}s")
@@ -350,6 +353,239 @@ def generate_mesh_from_stl(stl_path, output_path, final_side=1000, scale=10, sam
     return v, faces, d_zmin, d_zmax, mesh_path, R, v_orig
 
 
+
+def generate_mesh_from_stl_1(stl_path, output_path, final_side=1000, scale=10, sample_tilt_x=0, sample_tilt_new_z=0, sample_tilt_y=0, det_tilt_x=0, det_tilt_y=0):  # final_side设置为1000
+    """
+    从STL文件生成网格
+    
+    参数:
+        stl_path: STL文件路径
+        output_path: 输出路径
+        final_side: 最终网格大小。目前设置为模型实际的大小。
+        scale: 缩放因子。目前设置为10，将1微米视为0.001微米，然后转为纳米，纯粹为了加速计算。
+        tilt_x: X轴旋转角度
+        tilt_y: Y轴旋转角度
+        pad_scale: 填充缩放因子
+    """
+    stl_path = sanitize_path(stl_path)
+    output_path = sanitize_path(output_path)
+    tri_dir = output_path
+    tri_dir.mkdir(parents=True, exist_ok=True)
+    # 保留原始文件名
+    name = stl_path.stem
+    
+    # 读取STL文件
+    t_start = time.time()
+    mesh = pv.read(stl_path)
+    points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
+
+    R = torch.eye(3, device=points.device).float()
+    # Apply tilts
+    if sample_tilt_x != 0 or sample_tilt_y != 0:
+        if sample_tilt_x != 0:
+            
+            mesh = mesh.rotate_x(sample_tilt_x, point=(0,0,0), inplace=False)
+            points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
+            # 绕x轴旋转后，如果样品倾转角为55度，绕样品表面法线方向旋转
+            # 计算旋转角度（弧度）
+            # tilt_new_z_rad = math.radians(sample_tilt_new_z)
+             #tilt_new_z_rad_tensor = torch.tensor(tilt_new_z_rad, device=v.device)
+            
+            # 计算新的Z轴方向（样品表面法线方向）- 预计算常量
+            # 当样品倾转角为55度时，新的Z轴方向为 [0, -sin(55°), cos(55°)]
+            # rotation_axis = torch.tensor([0, -sin_tx, cos_tx], device=v.device)
+            R = torch.tensor(rotation_matrix(tilt_x=sample_tilt_x, rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+            points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
+            rotated_points = torch.mm(points_, R.T)  # 矩阵乘法
+
+        if sample_tilt_y != 0:
+            mesh.rotate_y(sample_tilt_y, point=(0,0,0), inplace=False)
+            points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
+            # # 绕 Y 轴旋转后的旋转轴方向（新的 Z 轴方向）
+            # rotation_axis = torch.tensor([sin_ty, 0, cos_ty], device=v.device)
+            R = rotation_matrix(tilt_y=sample_tilt_y, rotate_angle=sample_tilt_new_z)
+            R = torch.tensor(R, dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+            points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
+            rotated_points = torch.mm(points_, R.T)  # 矩阵乘法
+        # 更新顶点坐标
+        points[:, 0] = rotated_points[:, 0]
+        points[:, 1] = rotated_points[:, 1]
+        points[:, 2] = rotated_points[:, 2]
+    else:
+        R = torch.tensor(rotation_matrix(rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
+        points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
+        rotated_points = torch.mm(points_, R.T)  # 矩阵乘法
+
+        # 更新顶点坐标
+        points[:, 0] = rotated_points[:, 0]
+        points[:, 1] = rotated_points[:, 1]
+        points[:, 2] = rotated_points[:, 2]
+
+    #verts = torch.tensor(mesh.vertices * 1000, dtype=torch.float32).cuda()   # 获取顶点和面，并把顶点坐标从微米转为纳米
+    # 如果stl模型的单位为微米，获取顶点和面，并把顶点坐标视为0.001倍的单位，并把0.001微米单位转为纳米，纯粹为了加速计算。  
+    points = torch.tensor(points * scale, dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')   
+    #verts = torch.tensor(mesh.vertices * 10, dtype=torch.float32).cuda()
+    faces = torch.tensor(mesh.faces, dtype=torch.int32).to('cuda' if torch.cuda.is_available() else 'cpu')
+    faces = faces.reshape(-1, 4)[:, 1:]  # 转换为 (m, 3)
+    t_end = time.time()
+    
+    print(f"顶点数: {points.size(0)}, 面片数: {faces.size(0)}, 用时: {t_end - t_start:.1f}s")
+    #print(torch.max(verts, dim=0), torch.min(verts, dim=0))
+    # 36边形探测器
+    detector_str =f"""
+    -125 -125 0.000000 0.000000 34.000000 17.000000 0.000000 34.000000 16.741732 2.952019 34.000000
+    -125 -125 0.000000 0.000000 34.000000 16.741732 2.952019 34.000000 15.974775 5.814342 34.000000
+    -125 -125 0.000000 0.000000 34.000000 15.974775 5.814342 34.000000 14.722432 8.500000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 14.722432 8.500000 34.000000 13.022756 10.927389 34.000000
+    -125 -125 0.000000 0.000000 34.000000 13.022756 10.927389 34.000000 10.927389 13.022756 34.000000
+    -125 -125 0.000000 0.000000 34.000000 10.927389 13.022756 34.000000 8.500000 14.722432 34.000000
+    -125 -125 0.000000 0.000000 34.000000 8.500000 14.722432 34.000000 5.814342 15.974775 34.000000
+    -125 -125 0.000000 0.000000 34.000000 5.814342 15.974775 34.000000 2.952019 16.741732 34.000000
+    -125 -125 0.000000 0.000000 34.000000 2.952019 16.741732 34.000000 0.000000 17.000000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 0.000000 17.000000 34.000000 -2.952019 16.741732 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -2.952019 16.741732 34.000000 -5.814342 15.974775 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -5.814342 15.974775 34.000000 -8.500000 14.722432 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -8.500000 14.722432 34.000000 -10.927389 13.022756 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -10.927389 13.022756 34.000000 -13.022756 10.927389 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -13.022756 10.927389 34.000000 -14.722432 8.500000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -14.722432 8.500000 34.000000 -15.974775 5.814342 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -15.974775 5.814342 34.000000 -16.741732 2.952019 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -16.741732 2.952019 34.000000 -17.000000 0.000000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -17.000000 0.000000 34.000000 -16.741732 -2.952019 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -16.741732 -2.952019 34.000000 -15.974775 -5.814342 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -15.974775 -5.814342 34.000000 -14.722432 -8.500000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -14.722432 -8.500000 34.000000 -13.022756 -10.927389 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -13.022756 -10.927389 34.000000 -10.927389 -13.022756 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -10.927389 -13.022756 34.000000 -8.500000 -14.722432 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -8.500000 -14.722432 34.000000 -5.814342 -15.974775 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -5.814342 -15.974775 34.000000 -2.952019 -16.741732 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -2.952019 -16.741732 34.000000 -0.000000 -17.000000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 -0.000000 -17.000000 34.000000 2.952019 -16.741732 34.000000
+    -125 -125 0.000000 0.000000 34.000000 2.952019 -16.741732 34.000000 5.814342 -15.974775 34.000000
+    -125 -125 0.000000 0.000000 34.000000 5.814342 -15.974775 34.000000 8.500000 -14.722432 34.000000
+    -125 -125 0.000000 0.000000 34.000000 8.500000 -14.722432 34.000000 10.927389 -13.022756 34.000000
+    -125 -125 0.000000 0.000000 34.000000 10.927389 -13.022756 34.000000 13.022756 -10.927389 34.000000
+    -125 -125 0.000000 0.000000 34.000000 13.022756 -10.927389 34.000000 14.722432 -8.500000 34.000000
+    -125 -125 0.000000 0.000000 34.000000 14.722432 -8.500000 34.000000 15.974775 -5.814342 34.000000
+    -125 -125 0.000000 0.000000 34.000000 15.974775 -5.814342 34.000000 16.741732 -2.952019 34.000000
+    -125 -125 0.000000 0.000000 34.000000 16.741732 -2.952019 34.000000 17.000000 0.000000 34.000000
+"""
+
+    def read_detector_str(detector_str):
+        lines = detector_str.split('\n')
+        detector_x = []
+        detector_y = []
+        detector_z = []
+        material1 =[]
+        material2 = []
+        for line in lines:
+            parts = line.strip().split()
+            if len(parts) >= 11:
+                material1.append(int(parts[0]))
+                material2.append(int(parts[1]))
+                x, y, z = float(parts[2]), float(parts[3]), float(parts[4])
+                x1, y1, z1 = float(parts[5]), float(parts[6]), float(parts[7])
+                x2, y2, z2 = float(parts[8]), float(parts[9]), float(parts[10])
+                #print(x, y, z, x1, y1, z1, x2, y2, z2)
+
+                 # 旋转
+                cos_tx = cos_ty = 1.0
+                sin_tx = sin_ty = 0.0
+                
+                # Apply tilts
+                if det_tilt_x != 0:
+                        tilt_x_rad = math.radians(det_tilt_x)
+                        cos_tx = math.cos(tilt_x_rad)
+                        sin_tx = math.sin(tilt_x_rad)
+                        y_r = y * cos_tx - z * sin_tx
+                        z_r = y * sin_tx + z * cos_tx
+                        y1_r = y1 * cos_tx - z1 * sin_tx
+                        z1_r = y1 * sin_tx + z1 * cos_tx
+                        y2_r = y2 * cos_tx - z2 * sin_tx
+                        z2_r = y2 * sin_tx + z2 * cos_tx
+                        
+
+                        z_r += 34
+                        z1_r += 34
+                        z2_r += 34
+
+                        x = x * 1e3
+                        x1 = x1 * 1e3
+                        x2 = x2 * 1e3
+                        y = (y_r) * 1e3
+                        y1 = (y1_r) * 1e3
+                        y2 = (y2_r) * 1e3
+                        z = z_r * 1e3
+                        z1 = z1_r * 1e3
+                        z2 = z2_r * 1e3
+                else:
+                        x = x * 1e3
+                        x1 = x1 * 1e3
+                        x2 = x2 * 1e3
+                        y = y * 1e3
+                        y1 = y1 * 1e3
+                        y2 = y2 * 1e3
+                        z = z * 1e3
+                        z1 = z1 * 1e3
+                        z2 = z2 * 1e3
+
+                detector_x.append(x)
+                detector_x.append(x1)
+                detector_x.append(x2)
+                detector_y.append(y)
+                detector_y.append(y1)
+                detector_y.append(y2)
+                detector_z.append(z)
+                detector_z.append(z1)
+                detector_z.append(z2)
+                   
+        return material1, material2, detector_x, detector_y, detector_z
+    
+    material1, material2, detector_x, detector_y, detector_z = read_detector_str(detector_str)
+    
+    d_xmin, d_xmax = np.min(detector_x), np.max(detector_x)
+    d_ymin, d_ymax = np.min(detector_y), np.max(detector_y)
+    d_zmin, d_zmax = np.min(detector_z), np.max(detector_z)
+    terminator_z = torch.min(points[:, 2]) # 在样品下方放置终止器  
+    mirror_ymax = max(torch.max(points[:, 1]), d_ymax) 
+
+    env_str = f"""
+-122 -122  {d_xmax}   {d_ymin} {terminator_z}  {d_xmax}   {mirror_ymax} {terminator_z}  {d_xmax}   {mirror_ymax}     {d_zmax}
+-122 -122  {d_xmax}   {d_ymin} {terminator_z}  {d_xmax}   {mirror_ymax} {d_zmax}    {d_xmax}   {d_ymin}     {d_zmax}
+-122 -122  {d_xmin}   {mirror_ymax} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmin}   {mirror_ymax}     {d_zmax}
+-122 -122  {d_xmin}   {mirror_ymax} {d_zmax}    {d_xmin}   {d_ymin} {terminator_z}  {d_xmin}   {d_ymin}     {d_zmax}
+-122 -122  {d_xmin}   {d_ymin} {terminator_z}  {d_xmax}   {d_ymin} {terminator_z}  {d_xmax}   {d_ymin}     {d_zmax}
+-122 -122  {d_xmin}   {d_ymin} {terminator_z}  {d_xmax}   {d_ymin} {d_zmax}    {d_xmin}   {d_ymin}     {d_zmax}
+-122 -122  {d_xmax}   {mirror_ymax} {terminator_z}  {d_xmin}   {mirror_ymax} {terminator_z}  {d_xmax}   {mirror_ymax}     {d_zmax}
+-122 -122  {d_xmax}   {mirror_ymax} {d_zmax}    {d_xmin}   {mirror_ymax} {terminator_z}  {d_xmin}   {mirror_ymax}     {d_zmax}
+-127 -127  {d_xmax}   {d_ymin} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmax}   {mirror_ymax}     {terminator_z}
+-127 -127  {d_xmax}   {mirror_ymax} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmin}   {mirror_ymax}     {terminator_z}"""
+
+    # 生成输出文件名，保留原始文件名
+    output_filename = f'{name}_stl_to_tri_sampleTiltx{sample_tilt_x}_sampleTilty{sample_tilt_y}_sampleTiltNewZ{sample_tilt_new_z}_detTiltx{det_tilt_x}_{faces.size(0)}.tri'
+    # 只对输出文件名进行安全处理，确保文件系统兼容性
+    safe_output_filename = ''.join(c if c.isalnum() or c in '_-.' else '_' for c in output_filename)
+    tri_path = tri_dir / safe_output_filename
+    # 生成网格文件
+    with open(tri_path, 'w') as f:
+        for face in faces:
+            f.write(
+                f"0 -123 {points[face[0], 0]:.2f} {points[face[0], 1]:.2f} {points[face[0], 2]:.2f} {points[face[1], 0]:.2f} {points[face[1], 1]:.2f} {points[face[1], 2]:.2f} {points[face[2], 0]:.2f} {points[face[2], 1]:.2f} {points[face[2], 2]:.2f}\n"
+            )
+        f.write("\n")
+        f.write("\n")
+        d_j = 0
+        for i in range(len(material1)):        
+            f.write(f"{material1[i]} {material2[i]} {detector_x[d_j]:.6f} {detector_y[d_j]:.6f} {detector_z[d_j]:.6f} {detector_x[d_j+1]:.6f} {detector_y[d_j+1]:.6f} {detector_z[d_j+1]:.6f} {detector_x[d_j+2]:.6f} {detector_y[d_j+2]:.6f} {detector_z[d_j+2]:.6f}\n")
+            d_j += 3
+
+        f.write("\n")
+        f.write("\n")
+        f.write(env_str)
+
+    return points, faces, d_zmin, d_zmax, tri_path, R
+
+
 def generate_mesh_from_voxel(voxel_path, output_path, final_side=1000, tilt_x=0, tilt_y=0, pad_scale=1.0, length=20, reverse=False):  # final_side设置为1000
     """
     从体素数据生成网格
@@ -560,7 +796,7 @@ def run_interface(voxel_path, mesh_path, final_side=1000, scale=10, sample_tilt_
         
         # 检查文件扩展名，如果是STL文件，则调用STL处理函数
         if str(voxel_path).lower().endswith('.stl'):
-            return generate_mesh_from_stl(stl_path=voxel_path, output_path=mesh_path, final_side=final_side, scale=scale, sample_tilt_x=sample_tilt_x, sample_tilt_y=sample_tilt_y, sample_tilt_new_z=sample_tilt_new_z, det_tilt_x = det_tilt_x)
+            return generate_mesh_from_stl_1(stl_path=voxel_path, output_path=mesh_path, final_side=final_side, scale=scale, sample_tilt_x=sample_tilt_x, sample_tilt_y=sample_tilt_y, sample_tilt_new_z=sample_tilt_new_z, det_tilt_x = det_tilt_x)
         # else:
         #     return generate_mesh_from_voxel(voxel_path, mesh_path, final_side, sample_tilt_x, sample_tilt_y, pad_scale, length, reverse)
     except Exception as e:
