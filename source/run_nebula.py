@@ -4,11 +4,14 @@ import time
 import platform
 from analysis import sem_analysis
 class nebula_gpu:
-    def __init__(self, command, sem_simu_result:str, image_path:str):
+    def __init__(self, command, sem_simu_result:str, image_path:str, plot:bool=False, save:bool=True):
         super().__init__()
         self.command = command
         self.sem_simu_result = sem_simu_result
         self.image_path = image_path
+        self.plot = plot
+        self.save = save
+        
     def run(self):
         try:           
             # 打印调试信息
@@ -70,13 +73,13 @@ class nebula_gpu:
             # 检查进程是否正常结束
             if return_code == 0:
                 print("nebula_gpu 运行成功！")
-                self.show_image(plot=False, save=True)
+                self.show_image(plot=self.plot, save=self.save)
                 return
             else:
                 print(f"[WARNING] nebula_gpu 进程返回非零状态码: {return_code}")
                 # 尝试显示图像，即使进程返回非零状态码
                 try:
-                    self.show_image(plot=False, save=True)
+                    self.show_image(plot=self.plot, save=self.save)
                 except Exception as e:
                     print(f"[ERROR] 显示图像失败: {e}")
                 return

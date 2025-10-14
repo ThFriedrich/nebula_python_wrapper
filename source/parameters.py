@@ -1,9 +1,9 @@
 import numpy as np
 from voxel_to_mesh import run_interface
 from sem_pri import generate_sem_pri_data
-import pathlib
+import os
 class tri_parameters:
-    def __init__(self, stl_path, mesh_path, beam_type, sample_tilt_x, sample_tilt_y, sample_tilt_new_z, det_tilt_x):
+    def __init__(self, stl_path, mesh_path, sample_tilt_x, sample_tilt_y, sample_tilt_new_z, det_tilt_x):
         """
         初始化 .tri 文件生成所需的参数。
 
@@ -18,7 +18,6 @@ class tri_parameters:
         self.stl_path = stl_path
         self.mesh_path = mesh_path
         self.scale = 10
-        self.beam_type = beam_type
         self.sample_tilt_x = sample_tilt_x
         self.sample_tilt_y = sample_tilt_y  # 样品绕y轴旋转的角度，暂时设为和x轴相同
         self.sample_tilt_new_z = sample_tilt_new_z
@@ -88,7 +87,9 @@ class pri_parameters:
             print(f"束入射方向: {beam_incident_dir}")
             
             # 生成.pri文件
-            pri_file_path = pathlib.Path(self.pri_dir)/'sem.pri'
+            pri_file_path = os.path.join(self.pri_dir, 'sem.pri')
+
+
 
             # 计算束的z位置，使用tri类传出的d_zmax和d_zmin值
             beam_zmax = (self.d_zmax + self.d_zmin) / 2
