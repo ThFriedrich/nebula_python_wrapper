@@ -29,7 +29,7 @@ class NebulaGUI(QMainWindow):
         self.d_zmin = 0
         self.d_zmax = 0
         self.R = None  # 初始化旋转矩阵
-        self.v_orig = None
+        #self.v_orig = None
         # 主控件
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -542,7 +542,7 @@ class NebulaGUI(QMainWindow):
             self.d_zmin = self.tri_worker.d_zmin
             self.d_zmax = self.tri_worker.d_zmax
             self.R = self.tri_worker.R
-            self.v_orig = self.tri_worker.v_orig
+            #self.v_orig = self.tri_worker.v_orig
             self.tri_pri_log(f"保存d_zmin: {self.d_zmin}, d_zmax: {self.d_zmax}")
         else:
             self.tri_pri_log("❌ " + message)
@@ -557,73 +557,73 @@ class NebulaGUI(QMainWindow):
             self.generate_pri_btn.setEnabled(True)
             return
 
-        roi_x_min = self.roi_x_min_spin.value()
-        roi_x_max = self.roi_x_max_spin.value() 
-        roi_y_min = self.roi_y_min_spin.value()
-        roi_y_max = self.roi_y_max_spin.value()
-        self.tri_pri_log(f"初始设定ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
-        #if self.sample_tilt_spin.value() != 0:
-            #if self.sample_tilt_new_z_spin.value()!=0:
-                # 计算像素范围
-        # x_min_ori = int(torch.floor(torch.min(self.v_orig[:, 0])).item())
-        # x_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 0])).item())   
-        # y_min_ori = int(torch.floor(torch.min(self.v_orig[:, 1])).item())
-        # y_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 1])).item())
+        # roi_x_min = self.roi_x_min_spin.value()
+        # roi_x_max = self.roi_x_max_spin.value() 
+        # roi_y_min = self.roi_y_min_spin.value()
+        # roi_y_max = self.roi_y_max_spin.value()
+        # self.tri_pri_log(f"初始设定ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
+        # #if self.sample_tilt_spin.value() != 0:
+        #     #if self.sample_tilt_new_z_spin.value()!=0:
+        #         # 计算像素范围
+        # # x_min_ori = int(torch.floor(torch.min(self.v_orig[:, 0])).item())
+        # # x_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 0])).item())   
+        # # y_min_ori = int(torch.floor(torch.min(self.v_orig[:, 1])).item())
+        # # y_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 1])).item())
 
-        z_min_ori = int(torch.floor(torch.min(self.v_orig[:, 2])).item())
-        z_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 2])).item())
-        # z_size_ori = z_max_ori - z_min_ori
-        # y_max_offset = abs(z_size_ori * np.sin(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
-        # y_min_offset = abs(z_size_ori * np.cos(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
-        # # x_min = int(self.x_min_value.text())
-        # # x_max = int(self.x_max_value.text())
-        # # y_min = int(self.y_min_value.text())
-        # # y_max = int(self.y_max_value.text())
+        # z_min_ori = int(torch.floor(torch.min(self.v_orig[:, 2])).item())
+        # z_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 2])).item())
+        # # z_size_ori = z_max_ori - z_min_ori
+        # # y_max_offset = abs(z_size_ori * np.sin(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
+        # # y_min_offset = abs(z_size_ori * np.cos(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
+        # # # x_min = int(self.x_min_value.text())
+        # # # x_max = int(self.x_max_value.text())
+        # # # y_min = int(self.y_min_value.text())
+        # # # y_max = int(self.y_max_value.text())
 
-        # # 计算偏移量
-        # # x_min_offset = abs(x_min_ori - x_min)
-        # # y_min_offset = abs(y_min_ori - y_min)
-        # # x_max_offset = abs(x_max_ori - x_max)
-        # # y_max_offset = abs(y_max_ori - y_max)
+        # # # 计算偏移量
+        # # # x_min_offset = abs(x_min_ori - x_min)
+        # # # y_min_offset = abs(y_min_ori - y_min)
+        # # # x_max_offset = abs(x_max_ori - x_max)
+        # # # y_max_offset = abs(y_max_ori - y_max)
 
-        # # x_offset_max = max(x_min_offset, x_max_offset)
-        # # y_offset_max = max(y_min_offset, y_max_offset)*2
-        # self.tri_pri_log(f"偏移量:  Y({y_min_offset:.1f}, {y_max_offset:.1f})")
-        # self.tri_pri_log(f"原始像素范围: X({x_min_ori}, {x_max_ori}), Y({y_min_ori}, {y_max_ori})")
+        # # # x_offset_max = max(x_min_offset, x_max_offset)
+        # # # y_offset_max = max(y_min_offset, y_max_offset)*2
+        # # self.tri_pri_log(f"偏移量:  Y({y_min_offset:.1f}, {y_max_offset:.1f})")
+        # # self.tri_pri_log(f"原始像素范围: X({x_min_ori}, {x_max_ori}), Y({y_min_ori}, {y_max_ori})")
 
-        roi_v = torch.tensor([
-            [roi_x_min, roi_y_min, z_max_ori],
-            [roi_x_max, roi_y_min, z_max_ori],
-            [roi_x_min, roi_y_max, z_max_ori],
-            [roi_x_max, roi_y_max, z_max_ori]
-        ], dtype=torch.float32)
+        # roi_v = torch.tensor([
+        #     [roi_x_min, roi_y_min, z_max_ori],
+        #     [roi_x_max, roi_y_min, z_max_ori],
+        #     [roi_x_min, roi_y_max, z_max_ori],
+        #     [roi_x_max, roi_y_max, z_max_ori]
+        # ], dtype=torch.float32)
 
-        tilt_x_rad = torch.tensor(np.radians(self.sample_tilt_spin.value()), dtype=torch.float32)
-        cos_tx = torch.cos(tilt_x_rad)
-        sin_tx = torch.sin(tilt_x_rad)
-        y = roi_v[:, 1] * cos_tx - roi_v[:, 2] * sin_tx
-        z = roi_v[:, 1] * sin_tx + roi_v[:, 2] * cos_tx
-        roi_v[:, 1] = y
-        roi_v[:, 2] = z
-        points = torch.stack([roi_v[:, 0], roi_v[:, 1], roi_v[:, 2]], dim=1).to(self.R.device)
-        roi_rotated = torch.mm(points, self.R.T)
+        # tilt_x_rad = torch.tensor(np.radians(self.sample_tilt_spin.value()), dtype=torch.float32)
+        # cos_tx = torch.cos(tilt_x_rad)
+        # sin_tx = torch.sin(tilt_x_rad)
+        # y = roi_v[:, 1] * cos_tx - roi_v[:, 2] * sin_tx
+        # z = roi_v[:, 1] * sin_tx + roi_v[:, 2] * cos_tx
+        # roi_v[:, 1] = y
+        # roi_v[:, 2] = z
+        # points = torch.stack([roi_v[:, 0], roi_v[:, 1], roi_v[:, 2]], dim=1).to(self.R.device)
+        # roi_rotated = torch.mm(points, self.R.T)
 
-        roi_x_min = int(torch.floor(torch.min(roi_rotated[:, 0])).item())
-        roi_x_max = int(torch.ceil(torch.max(roi_rotated[:, 0])).item())
-        roi_y_min = int(torch.floor(torch.min(roi_rotated[:, 1])).item())
-        roi_y_max = int(torch.ceil(torch.max(roi_rotated[:, 1])).item())
+        # roi_x_min = int(torch.floor(torch.min(roi_rotated[:, 0])).item())
+        # roi_x_max = int(torch.ceil(torch.max(roi_rotated[:, 0])).item())
+        # roi_y_min = int(torch.floor(torch.min(roi_rotated[:, 1])).item())
+        # roi_y_max = int(torch.ceil(torch.max(roi_rotated[:, 1])).item())
 
-        # 计算新的ROI范围。绕x轴旋转，x方向偏移量不考虑
-        # roi_x_min = roi_x_min # - x_offset_max
-        # roi_x_max = roi_x_max #- x_offset_max
-        # roi_y_min = int(roi_y_min - y_min_offset)
-        # roi_y_max = int(roi_y_max - y_max_offset)
-        self.tri_pri_log(f"根据样品倾转角更新后的ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
-        # 更新ROI范围
-        self.roi_x_min_spin.setValue(roi_x_min)
-        self.roi_x_max_spin.setValue(roi_x_max)
-        self.roi_y_min_spin.setValue(roi_y_min)
-        self.roi_y_max_spin.setValue(roi_y_max)
+        # # 计算新的ROI范围。绕x轴旋转，x方向偏移量不考虑
+        # # roi_x_min = roi_x_min # - x_offset_max
+        # # roi_x_max = roi_x_max #- x_offset_max
+        # # roi_y_min = int(roi_y_min - y_min_offset)
+        # # roi_y_max = int(roi_y_max - y_max_offset)
+        # self.tri_pri_log(f"根据样品倾转角更新后的ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
+        # # 更新ROI范围
+        # self.roi_x_min_spin.setValue(roi_x_min)
+        # self.roi_x_max_spin.setValue(roi_x_max)
+        # self.roi_y_min_spin.setValue(roi_y_min)
+        # self.roi_y_max_spin.setValue(roi_y_max)
 
         # 收集参数
         params = {
@@ -634,10 +634,10 @@ class NebulaGUI(QMainWindow):
             'sigma': self.sigma_spin.value(),
             'poisson': self.poisson_check.isChecked(),
             'use_roi': self.use_roi_checkbox.isChecked(),
-            'roi_x_min': roi_x_min,
-            'roi_x_max': roi_x_max,
-            'roi_y_min': roi_y_min,
-            'roi_y_max': roi_y_max,
+            'roi_x_min': self.roi_x_min_spin.value(),
+            'roi_x_max': self.roi_x_max_spin.value(),
+            'roi_y_min': self.roi_y_min_spin.value(),
+            'roi_y_max': self.roi_y_max_spin.value(),
             # 添加d_zmin和d_zmax参数
             'd_zmin': self.d_zmin,
             'd_zmax': self.d_zmax
@@ -941,7 +941,7 @@ class TriGeneratorWorker(QThread):
         self.d_zmin = 0  # 初始化d_zmin
         self.d_zmax = 0  # 初始化d_zmax
         self.R = None  # 初始化旋转矩阵
-        self.v_orig = None  # 初始化原始顶点
+        #self.v_orig = None  # 初始化原始顶点
 
     def run(self):
         try:
@@ -969,7 +969,7 @@ class TriGeneratorWorker(QThread):
             # 生成.tri文件
             self.progress_signal.emit("正在生成.tri文件...")
             try:
-                v, faces, d_zmin, d_zmax, tri_file_path,R, v_orig = run_interface(
+                v, faces, d_zmin, d_zmax, tri_file_path,R = run_interface(
                     voxel_path, 
                     mesh_path, 
                     sample_tilt_x=sample_tilt_x, 
@@ -981,7 +981,7 @@ class TriGeneratorWorker(QThread):
                 self.d_zmin = d_zmin
                 self.d_zmax = d_zmax
                 self.R = R
-                self.v_orig = v_orig  # 保存原始顶点
+                #self.v_orig = v_orig  # 保存原始顶点
 
                 self.progress_signal.emit(f"d_zmin: {d_zmin}, d_zmax: {d_zmax}")
                 
