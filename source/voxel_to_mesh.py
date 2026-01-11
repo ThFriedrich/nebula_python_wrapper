@@ -161,8 +161,8 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
         print(f"Read体素file时出错: {e}")
         raise
 
-    # 计算体素数据of边界尺寸
-    side = max(voxel.shape[1], voxel.shape[2])  # 取高degrees和宽degreesof最大值as边长
+    # Calculate boundary dimensions of voxel data
+    side = max(voxel.shape[1], voxel.shape[2])  # Take maximum of height and width as side length
     scale = final_side / side
 
     # Get体素数据of实际尺寸
@@ -200,7 +200,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
     v[:, 2] -= actual_length
     v *= scale
 
-    # 预先定义Rotation变量，避免on后续代码中未定义of问题
+    # Pre-define rotation variables to avoid undefined issues in subsequent code
     cos_tx = cos_ty = 1.0
     sin_tx = sin_ty = 0.0
     
