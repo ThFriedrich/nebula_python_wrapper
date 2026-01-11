@@ -48,12 +48,12 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
             # tilt_new_z_rad = math.radians(sample_tilt_new_z)
              #tilt_new_z_rad_tensor = torch.tensor(tilt_new_z_rad, device=v.device)
             
-            # 计算新ofZaxis方to（样品表面法线方to）- 预计算常量
-            # 当样品倾转角为55degrees时，新ofZaxis方to为 [0, -sin(55°), cos(55°)]
+            # Calculate new Z-axis direction (sample surface normal direction) - precompute constants
+            # When sample tilt angle is 55 degrees, new Z-axis direction is [0, -sin(55°), cos(55°)]
             # rotation_axis = torch.tensor([0, -sin_tx, cos_tx], device=v.device)
             R = torch.tensor(rotation_matrix(tilt_x=sample_tilt_x, rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
             points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
-            rotated_points = torch.mm(points_, R.T)  # matrix乘法
+            rotated_points = torch.mm(points_, R.T)  # matrix multiplication
 
         if sample_tilt_y != 0:
             mesh.rotate_y(sample_tilt_y, point=(0,0,0), inplace=False)
@@ -63,7 +63,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
             R = rotation_matrix(tilt_y=sample_tilt_y, rotate_angle=sample_tilt_new_z)
             R = torch.tensor(R, dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
             points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
-            rotated_points = torch.mm(points_, R.T)  # matrix乘法
+            rotated_points = torch.mm(points_, R.T)  # matrix multiplication
         # 更新顶点坐标
         points[:, 0] = rotated_points[:, 0]
         points[:, 1] = rotated_points[:, 1]
@@ -71,7 +71,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
     else:
         R = torch.tensor(rotation_matrix(rotate_angle=sample_tilt_new_z), dtype=torch.float32).to('cuda' if torch.cuda.is_available() else 'cpu')
         points_ = torch.stack([points[:, 0], points[:, 1], points[:, 2]], dim=1).to(R.device)
-        rotated_points = torch.mm(points_, R.T)  # matrix乘法
+        rotated_points = torch.mm(points_, R.T)  # matrix multiplication
 
         # 更新顶点坐标
         points[:, 0] = rotated_points[:, 0]
@@ -109,14 +109,14 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 -127 -127  {d_xmax}   {d_ymin} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmax}   {mirror_ymax}     {terminator_z}
 -127 -127  {d_xmax}   {mirror_ymax} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmin}   {mirror_ymax}     {terminator_z}"""
 
-    # generationoutputfilename，Preserve original filename
+    # Generate output filename, preserve original filename
     output_filename = f'{name}_sampleTiltx{55-sample_tilt_x}_sampleTilty{sample_tilt_y}_sampleTiltNewZ{sample_tilt_new_z}_detTiltx{det_tilt_x}_{faces.size(0)}.tri'
-    # 只对outputfilename进行安全处理，确保file系统兼容性
+    # Only perform safety processing on output filename to ensure file system compatibility
     safe_output_filename = ''.join(c if c.isalnum() or c in '_-.' else '_' for c in output_filename)
     print("tri_dir:", tri_dir)
     tri_path = os.path.join(tri_dir, safe_output_filename)
     print("tri_path:", tri_path)
-    # generation网格file
+    # Generate mesh file
     with open(tri_path, 'w') as f:
         for face in faces:
             f.write(
@@ -137,10 +137,10 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 
 
     """
-    from体素数据generation网格
+    Generate mesh from voxel data
     
     parameters:
-        voxel_path: 体素filepath
+        voxel_path: voxel file path
         output_path: output path
         final_side: Final mesh size
         tilt_x: X axis rotation angle (degrees)
@@ -278,9 +278,9 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 -127 -127  {xmax}   {ymin} {terminator_z}  {xmin}   {ymin} {terminator_z}  {xmax}   {ymax}     {terminator_z}
 -127 -127  {xmax}   {ymax} {terminator_z}  {xmin}   {ymin} {terminator_z}  {xmin}   {ymax}     {terminator_z}"""
 
-    # generationoutputfilename，Preserve original filename
+    # Generate output filename, preserve original filename
     output_filename = f'{name}_{actual_side_x}x{actual_side_y}to{final_side}_{actual_length}_tiltx{tilt_x}_tilty{tilt_y}_{faces.size(0)}.tri'
-    # 只对outputfilename进行安全处理，确保file系统兼容性
+    # Only perform safety processing on output filename to ensure file system compatibility
     safe_output_filename = ''.join(c if c.isalnum() or c in '_-.' else '_' for c in output_filename)
     with open(tri_dir / safe_output_filename, 'w') as f:
         for face in faces:
@@ -315,7 +315,7 @@ def run_interface(voxel_path, mesh_path, scale=10, sample_tilt_x=0, sample_tilt_
     运行接口函数，Convert体素数据转换为网格数据并保存。
 
     parameters:
-        voxel_path (Path或str): 体素filepath，可以是任意filename（包含空格）
+        voxel_path (Path或str): voxel file path，可以是任意filename（包含空格）
         mesh_path (Path或str): 网格file保存path
         side (int): 初始边长
         scale: Scaling factor. Currently set to 10, treating 1 micrometer as 0.001 micrometers, then convert to nanometers, purely to accelerate computation.
