@@ -3,9 +3,9 @@ import struct
 
 def parse_stl_binary(data):
     """
-    解析二进制STL文件数据
-    :param data: 二进制数据
-    :return: 顶点列表
+    解析二进制STLfile数据
+    :param data: binary data
+    :return: vertex list
     """
     vertices = []
     header = data[0:80]
@@ -22,9 +22,9 @@ def parse_stl_binary(data):
 
 def read_stl_to_txt(stl_file_path, txt_file_path):
     """
-    读取STL文件并写入TXT文件
-    :param stl_file_path: STL文件路径
-    :param txt_file_path: 输出的TXT文件路径
+    ReadSTLfileand write toTXTfile
+    :param stl_file_path: STLfilepath
+    :param txt_file_path: outputofTXTfilepath
     """
     with open(stl_file_path, 'rb') as stl_file:
         data = stl_file.read()

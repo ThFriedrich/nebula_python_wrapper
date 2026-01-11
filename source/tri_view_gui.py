@@ -11,11 +11,11 @@ from urllib.error import URLError, HTTPError
 class TriVisualizer(QMainWindow):
     def __init__(self):
         super().__init__()
-        # 设置日志记录器
+        # Set up logger
         self.logger = logging.getLogger('nebula_viewer.TriVisualizer')
         self.logger.info("Initializing TriVisualizer")
         
-        self.setWindowTitle("Tri 文件可视化工具")
+        self.setWindowTitle("Tri File Visualization Tool")
         self.setGeometry(100, 100, 800, 600)
         
         self.central_widget = QWidget()
@@ -30,29 +30,29 @@ class TriVisualizer(QMainWindow):
                 
         self.file_path_display = QLineEdit()
         self.file_path_display.setReadOnly(True)
-        self.file_path_display.setPlaceholderText("文件路径将显示在这里")
+        self.file_path_display.setPlaceholderText("File path will be displayed here")
         self.layout.addWidget(self.file_path_display)
         
-        self.button = QPushButton("选择文件")
+        self.button = QPushButton("Selectfile")
         self.button.clicked.connect(self.open_file_dialog)
         self.layout.addWidget(self.button)
         
         self.web_view = QWebEngineView()
         self.web_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         
-        # 启用 JavaScript 和插件
+        # Enable JavaScript and plugins
         settings = self.web_view.settings()
         settings.setAttribute(settings.WebAttribute.JavascriptEnabled, True)
         settings.setAttribute(settings.WebAttribute.PluginsEnabled, True)
         
-        # 设置用户代理，模拟 Chrome 浏览器
+        # Set user agent，simulate Chrome browser
         settings.setAttribute(settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         settings.setDefaultTextEncoding("utf-8")
         
-        # 启用开发者工具
+        # Enable开发者工具
         
         
-        # 设置自定义 WebEnginePage 以拦截链接点击和处理控制台消息
+        # Set自定义 WebEnginePage 以拦截链接点击和处理控制台消息
         custom_page = WebEnginePage(self.web_view)
         self.web_view.setPage(custom_page)
         
@@ -66,7 +66,7 @@ class TriVisualizer(QMainWindow):
         # 启动时直接加载本地开发服务器页面
         from PyQt6.QtCore import QUrl
         self.web_view.load(QUrl("http://localhost:5173/"))
-        self.label.setText("正在加载可视化页面...")
+        self.label.setText("正on加载可视化页面...")
         self.logger.info("Loading visualization page")
         
     # 定义 JavaScript 控制台消息信号
@@ -78,7 +78,7 @@ class TriVisualizer(QMainWindow):
             level_str = ["Info", "Warning", "Error"][level] if isinstance(level, int) and 0 <= level < 3 else "Unknown"
             log_msg = f"JS Console ({level_str}): {message} [line: {line}, source: {source_id}]"
             
-            # 根据日志级别选择不同的日志方法
+            # 根据日志级别Select不同of日志方法
             if level_str == "Error":
                 self.logger.error(log_msg)
             elif level_str == "Warning":
@@ -92,28 +92,28 @@ class TriVisualizer(QMainWindow):
 
     def open_file_dialog(self):
         """
-        打开文件选择对话框并加载可视化页面
+        打开fileSelect对话框并加载可视化页面
         """
-        file_path, _ = QFileDialog.getOpenFileName(self, "选择 .tri 文件", "", "Tri 文件 (*.tri);;所有文件 (*)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select .tri file", "", "Tri file (*.tri);;所有file (*)")
         if file_path:
             self.file_path_display.setText(file_path)
             self.load_visualization(file_path)
     
     def load_visualization(self, file_path):
         """
-        加载 .tri 文件内容并可视化
+        加载 .tri file内容并可视化
         """
         if not os.path.exists(file_path):
-            self.label.setText(f"错误: 文件 {file_path} 不存在")
+            self.label.setText(f"错误: file {file_path} 不存on")
             return
         
         try:
-            # 读取文件内容
+            # Readfile内容
             with open(file_path, 'r', encoding='utf-8') as file:
                 file_content = file.read()
             
-            # 直接加载文件内容并设置 MIME 类型
-            # 完整的MIME类型映射
+            # 直接加载file内容并Set MIME 类型
+            # 完整ofMIME类型映射
             mime_map = {
                 '.json': 'application/json',
                 '.tri': 'text/plain',
@@ -129,9 +129,9 @@ class TriVisualizer(QMainWindow):
                     break
             
             self.web_view.setContent(file_content.encode('utf-8'), mime_type)
-            self.label.setText(f"已加载文件: {os.path.basename(file_path)}")
+            self.label.setText(f"已加载file: {os.path.basename(file_path)}")
             
-            # 优化的服务器检查(带重试)
+            # 优化of服务器检查(带重试)
             max_retries = 3
             for attempt in range(max_retries):
                 try:
@@ -159,18 +159,18 @@ class TriVisualizer(QMainWindow):
             from urllib.parse import quote
             import mimetypes
             
-            # 确保 MIME 类型已正确初始化
+            # 确保 MIME 类型已正确Initialize
             mimetypes.init()
             
-            # 正确编码文件路径，确保特殊字符被正确处理
+            # 正确编码filepath，确保特殊字符被正确处理
             encoded_path = quote(file_path)
             
-            # 安全的文件内容读取(限制大小和验证内容)
+            # 安全offile内容Read(限制大小和验证内容)
             MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
             try:
                 file_size = os.path.getsize(file_path)
                 if file_size > MAX_FILE_SIZE:
-                    self.label.setText(f"错误: 文件过大 ({file_size} > {MAX_FILE_SIZE} bytes)")
+                    self.label.setText(f"错误: file过大 ({file_size} > {MAX_FILE_SIZE} bytes)")
                     return
                 
                 with open(file_path, 'r', encoding='utf-8') as f:
@@ -178,39 +178,39 @@ class TriVisualizer(QMainWindow):
                     
                 # 基本内容验证
                 if not file_content.strip():
-                    self.label.setText("错误: 文件内容为空")
+                    self.label.setText("错误: file内容为空")
                     return
                 
-                # 构建 URL，包含文件名
+                # 构建 URL，包含filename
                 file_name = os.path.basename(file_path)
                 url = f"http://localhost:5173/?fileName={quote(file_name)}"
                 
                 # 加载 URL
                 self.web_view.load(QUrl(url))
                 
-                # 设置自定义 HTTP 头，传递文件内容
+                # Set自定义 HTTP 头，传递file内容
                 self.web_view.page().profile().setHttpAcceptLanguage("en-US,en;q=0.9")
                 self.web_view.page().profile().setHttpUserAgent("Mozilla/5.0 NebulaViewer/1.0")
                 
-                # 将文件内容存储在本地存储中，以便前端访问
-                # 使用分块存储方式处理大文件
+                # Convertfile内容存储on本地存储中，以便前端访问
+                # 使用分块存储方式处理大file
                 self.logger.debug(f"Storing file content in localStorage, size: {len(file_content)} bytes")
                 script = f"""
                 try {{
-                    // 清除之前的内容
+                    // 清除之前of内容
                     localStorage.removeItem('triFileContent');
                     localStorage.removeItem('triFileChunks');
                     
-                    // 分块存储大文件内容，避免超出 localStorage 限制
+                    // 分块存储大file内容，避免超出 localStorage 限制
                     const content = `{file_content}`;
                     const maxChunkSize = 512 * 1024; // 512KB chunks
                     
                     if (content.length <= maxChunkSize) {{
-                        // 小文件直接存储
+                        // 小file直接存储
                         localStorage.setItem('triFileContent', JSON.stringify(content));
                         console.log('File content stored in localStorage, size: ' + content.length + ' bytes');
                     }} else {{
-                        // 大文件分块存储
+                        // 大file分块存储
                         const chunks = Math.ceil(content.length / maxChunkSize);
                         console.log(`File too large (${content.length} bytes), splitting into ${chunks} chunks`);
                         
@@ -234,18 +234,18 @@ class TriVisualizer(QMainWindow):
                 """
                 self.web_view.page().runJavaScript(script)
                 
-                self.label.setText(f"正在加载文件: {file_path}...")
+                self.label.setText(f"正on加载file: {file_path}...")
             except Exception as e:
-                self.label.setText(f"错误: 无法读取文件内容: {str(e)}")
-                print(f"DEBUG - 文件读取错误: {str(e)}")
+                self.label.setText(f"错误: 无法Readfile内容: {str(e)}")
+                print(f"DEBUG - fileRead错误: {str(e)}")
             
-            # 在页面加载完成后更新状态
+            # on页面加载完成后更新状态
             def on_load_finished(ok):
                 if ok:
                     self.label.setText("页面加载完成")
                     self.logger.info("Page loaded successfully")
                     
-                    # 执行额外的 JavaScript 来验证文件内容是否正确加载
+                    # 执行额外of JavaScript 来验证file内容是否正确加载
                     verify_script = """
                     (function() {
                         try {
@@ -305,7 +305,7 @@ class WebEnginePage(QWebEnginePage):
     
     def createWindow(self, type_):
         """
-        拦截新窗口或标签页的打开请求
+        拦截新窗口或标签页of打开请求
         """
         self.logger.debug(f"Create window request, type: {type_}")
         return WebEnginePage(self.parent())
@@ -331,7 +331,7 @@ if __name__ == "__main__":
     import os
     import logging
     
-    # 配置日志记录
+    # configuration日志记录
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -343,12 +343,12 @@ if __name__ == "__main__":
     logger = logging.getLogger('nebula_viewer')
     logger.info("Starting Nebula Viewer application")
     
-    # 设置字体环境变量
+    # Set字体环境变量
     os.environ["FONTCONFIG_PATH"] = "/etc/fonts"
     os.environ["FONTCONFIG_FILE"] = "/etc/fonts/fonts.conf"
     logger.debug("Font environment variables set")
     
-    # 忽略 MIME 缓存文件错误
+    # 忽略 MIME 缓存file错误
     os.environ["QT_LOGGING_RULES"] = "xdg.mime=false;qt.webenginecontext.warning=false"
     logger.debug("QT logging rules set")
     

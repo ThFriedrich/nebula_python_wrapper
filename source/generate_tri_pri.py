@@ -4,67 +4,67 @@ import torch
 import numpy as np
 from sem_pri import generate_sem_pri_data
 from voxel_to_mesh import run_interface
-# 示例用法
-# 可以使用任意文件名作为输入，包括包含空格和特殊字符的文件名，程序会保留原始文件名
-# 例如：
-# voxel_path = '/path/to/your/input/file with spaces.stl'  # 包含空格的文件名
-# mesh_path = '/path/to/output directory/'  # 包含空格的目录
+# Example usage
+# Can use anyfilenameasinput，including those with spaces and special charactersfilename，program will preserve originalfilename
+# For example：
+# voxel_path = '/path/to/your/input/file with spaces.stl'  # containing spacesfilename
+# mesh_path = '/path/to/output directory/'  # containing spacesdirectory
 # run_interface(voxel_path, mesh_path, final_side=1000)
 #
-# 或者从命令行运行时：
+# Or when running from command line：
 # python voxel_to_mesh.py "/path/to/file with spaces.stl" "/output directory/"
 
-# 如果需要从命令行运行，可以使用以下代码：
+# if需要from命令行运行，can use the following code：
 import sys
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        # 从命令行获取输入文件路径，确保正确处理包含空格的文件名
+        # from命令行Getinputfilepath，确保正确处理containing spacesfilename
         input_file = sys.argv[1]
         
-        # 处理引号包裹的文件名（可能包含空格）
+        # 处理引号包裹offilename（可能包含空格）
         if (input_file.startswith('"') and input_file.endswith('"')) or \
            (input_file.startswith("'") and input_file.endswith("'")):
             input_file = input_file[1:-1]
         
-        # 默认输出目录为输入文件所在目录
+        # 默认outputdirectory为inputfile所ondirectory
         output_dir = pathlib.Path(input_file).parent
         
         if len(sys.argv) > 2:
-            # 如果提供了输出目录，则使用提供的输出目录
+            # if提供了outputdirectory，则使用提供ofoutputdirectory
             output_dir = sys.argv[2]
-            # 处理引号包裹的目录名（可能包含空格）
+            # 处理引号包裹ofdirectoryname（可能包含空格）
             if (output_dir.startswith('"') and output_dir.endswith('"')) or \
                (output_dir.startswith("'") and output_dir.endswith("'")):
                 output_dir = output_dir[1:-1]
         
-        print(f"处理文件: {input_file}")
-        print(f"输出目录: {output_dir}")
+        print(f"处理file: {input_file}")
+        print(f"outputdirectory: {output_dir}")
         
-        # 确保路径正确处理，特别是包含空格的路径
+        # 确保path正确处理，特别是containing spacespath
         run_interface(input_file, output_dir, final_side=512)
     else:
         # 默认示例
 
 
-        # 离子束成像
-        # 探测器的倾转角常见的有55度、52度。
-        # 此时离子束发射方向相对探测器平面是垂直的。
-        # 此时，离子束成像就转换为探测器的倾转角为0度的成像情况，离子束反射方向也变为沿z轴。
-        # 一般情况下，用离子束成像时，样品倾转角和探测器倾转角是相同的，也即样品不用倾转；当然，样品也可以随意倾转。
+        # Ion beam imaging
+        # 探测器of倾转角常见of有55degrees、52degrees。
+        # 此时离子束发射方to相对探测器平面是垂直of。
+        # 此时，Ion beam imaging就转换为探测器of倾转角为0degreesof成像情况，离子束反射方to也变为沿zaxis。
+        # 一般情况下，用Ion beam imaging时，样品倾转角和探测器倾转角是相同of，也即样品不用倾转；当然，样品也可以随意倾转。
     
 
 
-        # 电子束成像
-        # 探测器的倾转角为76.8度
-        # 电子束的入射方向是固定的，沿z轴方向，即电子束的倾转角为0度。
+        # Electron beam imaging
+        # 探测器of倾转角为76.8degrees
+        # 电子束of入射方to是固定of，沿zaxis方to，即电子束of倾转角为0degrees。
         # 样品则可以随意倾转。
 
 
         # 总之，电子束和离子束都不用倾转。
 
 
-        # 应当有必要，为了更快的模拟速度，应该进行一个scale，即应当使用final_side进行缩放  
+        # 应当有必要，为了更快ofsimulate速degrees，应该进行一个scale，即应当使用final_side进行缩放  
         voxel_path = pathlib.Path('/home/chenguisen/AISI/nebula/nebula_python_wrapper/data/4_Trench Milling.stl')
         mesh_path = pathlib.Path('/home/chenguisen/AISI/nebula/nebula_python_wrapper/data')
         electron_ion_um = {"ion_beam": "ion_beam", "electron_beam": "electron_beam"}
@@ -73,11 +73,11 @@ if __name__ == "__main__":
         det_tilt_x = 0
         beam_type = "ion_beam"
         if electron_ion_um["ion_beam"] == beam_type:
-            # 1. 生成SEM PRI文件
+            # 1. generationSEM PRIfile
             sample_tilt_x = 55    # 样品倾转角
         elif electron_ion_um["electron_beam"] == beam_type:
-            # 2. 生成SEM PRI文件
-            sample_tilt_x = 0   # 样品倾转角,可选择任意角度
+            # 2. generationSEM PRIfile
+            sample_tilt_x = 0   # 样品倾转角,可Select任意角degrees
             det_tilt_x = 76.8  # 探测器倾转角  
         else:
             raise ValueError("electron_ion_um must be 'ion_beam' or 'electron_beam'")
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         
 
 
-        beam_incident_dir = np.array([0, 0, -1])  # 束入射方向
+        beam_incident_dir = np.array([0, 0, -1])  # 束入射方to
         print("beam_incident_dir = ",beam_incident_dir)
         beam_zmax = (d_zmax+d_zmin)/2
         print("beam_zmax = ",beam_zmax)

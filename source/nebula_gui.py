@@ -22,98 +22,98 @@ class NebulaGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("Nebula GPU 工具集")
+        self.setWindowTitle("Nebula GPU Toolset")
         self.setGeometry(100, 100, 800, 600)
         
-        # 初始化d_zmin和d_zmax属性
+        # Initialize d_zmin and d_zmax attributes
         self.d_zmin = 0
         self.d_zmax = 0
-        self.R = None  # 初始化旋转矩阵
+        self.R = None  # Initialize rotation matrix
         #self.v_orig = None
-        # 主控件
+        # Main widget
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
-        # 布局
+        # Layout
         self.main_layout = QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
         
-        # 创建选项卡
+        # Create tabs
         self.tabs = QTabWidget()
         self.main_layout.addWidget(self.tabs)
         
-        # 创建Nebula GPU参数配置选项卡
+        # CreateNebula GPUparametersconfiguration tab
         self.nebula_tab = QWidget()
         self.nebula_layout = QVBoxLayout(self.nebula_tab)
-        self.tabs.addTab(self.nebula_tab, "Nebula GPU 参数配置")
+        self.tabs.addTab(self.nebula_tab, "Nebula GPU parametersconfiguration")
         
-        # 创建TRI和PRI生成器选项卡
+        # CreateTRI和PRIgeneration器选项卡
         self.tri_pri_tab = QWidget()
         self.tri_pri_layout = QVBoxLayout(self.tri_pri_tab)
-        self.tabs.addTab(self.tri_pri_tab, "TRI和PRI生成器")
+        self.tabs.addTab(self.tri_pri_tab, "TRI和PRIgeneration器")
         
         
-        # 初始化Nebula GPU参数配置选项卡
+        # InitializeNebula GPUparametersconfiguration tab
         self.init_nebula_tab()
         
-        # 初始化TRI和PRI生成器选项卡
+        # InitializeTRI和PRIgeneration器选项卡
         self.init_tri_pri_tab()
         
 
         
     def init_nebula_tab(self):
-        """初始化Nebula GPU参数配置选项卡"""
-        # nebula_gpu 路径
+        """InitializeNebula GPUparametersconfiguration tab"""
+        # nebula_gpu path
         self.nebula_gpu_layout = QHBoxLayout()
-        self.nebula_gpu_label = QLabel("nebula_gpu 路径:")
+        self.nebula_gpu_label = QLabel("nebula_gpu path:")
         self.nebula_gpu_input = QLineEdit()
         self.nebula_gpu_input.setText("")
-        self.nebula_gpu_button = QPushButton("选择")
+        self.nebula_gpu_button = QPushButton("Select")
         self.nebula_gpu_button.clicked.connect(self.select_nebula_gpu_path)
         self.nebula_gpu_layout.addWidget(self.nebula_gpu_label)
         self.nebula_gpu_layout.addWidget(self.nebula_gpu_input)
         self.nebula_gpu_layout.addWidget(self.nebula_gpu_button)
         self.nebula_layout.addLayout(self.nebula_gpu_layout)
 
-        # tri 文件路径
+        # tri filepath
         self.tri_layout = QHBoxLayout()
-        self.tri_label = QLabel(".tri 文件路径:")
+        self.tri_label = QLabel(".tri filepath:")
         self.tri_input = QLineEdit()
-        self.tri_button = QPushButton("选择")
+        self.tri_button = QPushButton("Select")
         self.tri_button.clicked.connect(lambda: self.select_file(self.tri_input, "TRI Files (*.tri)"))
         self.tri_layout.addWidget(self.tri_label)
         self.tri_layout.addWidget(self.tri_input)
         self.tri_layout.addWidget(self.tri_button)
         self.nebula_layout.addLayout(self.tri_layout)
 
-        # pri 文件路径
+        # pri filepath
         self.pri_layout = QHBoxLayout()
-        self.pri_label = QLabel(".pri 文件路径:")
+        self.pri_label = QLabel(".pri filepath:")
         self.pri_input = QLineEdit()
-        self.pri_button = QPushButton("选择")
+        self.pri_button = QPushButton("Select")
         self.pri_button.clicked.connect(lambda: self.select_file(self.pri_input, "PRI Files (*.pri)"))
         self.pri_layout.addWidget(self.pri_label)
         self.pri_layout.addWidget(self.pri_input)
         self.pri_layout.addWidget(self.pri_button)
         self.nebula_layout.addLayout(self.pri_layout)
 
-        # mat 文件路径（支持多选）
+        # mat filepath（支持多选）
         self.mat_layout = QHBoxLayout()
-        self.mat_label = QLabel(".mat 文件路径:")
+        self.mat_label = QLabel(".mat filepath:")
         self.mat_input = QLineEdit()
-        self.mat_input.setPlaceholderText("支持多选，点击右侧按钮选择")
-        self.mat_button = QPushButton("选择多个")
+        self.mat_input.setPlaceholderText("支持多选，点击右侧按钮Select")
+        self.mat_button = QPushButton("Select多个")
         self.mat_button.clicked.connect(self.select_mat_files)
         self.mat_layout.addWidget(self.mat_label)
         self.mat_layout.addWidget(self.mat_input)
         self.mat_layout.addWidget(self.mat_button)
         self.nebula_layout.addLayout(self.mat_layout)
 
-        # 输出文件路径
+        # outputfilepath
         self.output_layout = QHBoxLayout()
-        self.output_label = QLabel("输出文件路径:")
+        self.output_label = QLabel("outputfilepath:")
         self.output_path_input = QLineEdit()
-        self.output_button = QPushButton("选择")
+        self.output_button = QPushButton("Select")
         self.output_button.clicked.connect(self.select_output_path)
         self.output_layout.addWidget(self.output_label)
         self.output_layout.addWidget(self.output_path_input)
@@ -125,7 +125,7 @@ class NebulaGUI(QMainWindow):
         self.run_button.clicked.connect(self.run_nebula_gpu)
         self.nebula_layout.addWidget(self.run_button)
 
-        # 日志输出
+        # 日志output
         self.log_output = QPlainTextEdit()
         self.log_output.setReadOnly(True)
         self.log_output.setStyleSheet("font-family: monospace;")
@@ -133,14 +133,14 @@ class NebulaGUI(QMainWindow):
         
    
     def init_tri_pri_tab(self):
-        """初始化TRI和PRI生成器选项卡"""
-        # 文件选择部分
-        file_group = QGroupBox("文件设置")
+        """InitializeTRI和PRIgeneration器选项卡"""
+        # fileSelect部分
+        file_group = QGroupBox("fileSet")
         file_layout = QVBoxLayout()
         
-        # STL文件选择
+        # STLfileSelect
         stl_layout = QHBoxLayout()
-        stl_label = QLabel("STL文件:")
+        stl_label = QLabel("STLfile:")
         self.stl_path_edit = QLineEdit()
         self.stl_path_edit.setReadOnly(True)
         stl_browse_btn = QPushButton("浏览...")
@@ -150,9 +150,9 @@ class NebulaGUI(QMainWindow):
         stl_layout.addWidget(stl_browse_btn)
         file_layout.addLayout(stl_layout)
         
-        # 输出目录选择
+        # outputdirectorySelect
         tri_pri_output_layout = QHBoxLayout()
-        tri_pri_output_label = QLabel("输出目录:")
+        tri_pri_output_label = QLabel("outputdirectory:")
         self.tri_pri_output_path_edit = QLineEdit()
         self.tri_pri_output_path_edit.setReadOnly(True)
         tri_pri_output_layout.addWidget(tri_pri_output_label)
@@ -162,8 +162,8 @@ class NebulaGUI(QMainWindow):
         file_group.setLayout(file_layout)
         self.tri_pri_layout.addWidget(file_group)
         
-        # 束类型设置
-        beam_group = QGroupBox("束类型设置")
+        # 束类型Set
+        beam_group = QGroupBox("束类型Set")
         beam_layout = QVBoxLayout()
         
         beam_type_layout = QHBoxLayout()
@@ -187,9 +187,9 @@ class NebulaGUI(QMainWindow):
         sample_tilt_layout.addWidget(self.sample_tilt_spin)
         beam_layout.addLayout(sample_tilt_layout)
         
-        # 样品新Z轴旋转角
+        # 样品新Zaxisrotation angle
         sample_tilt_new_z_layout = QHBoxLayout()
-        sample_tilt_new_z_label = QLabel("样品新Z轴旋转角 (°):")
+        sample_tilt_new_z_label = QLabel("样品新Zaxisrotation angle (°):")
         self.sample_tilt_new_z_spin = QDoubleSpinBox()
         self.sample_tilt_new_z_spin.setRange(-360, 360)
         self.sample_tilt_new_z_spin.setValue(0)  # 初始值设为0
@@ -212,12 +212,12 @@ class NebulaGUI(QMainWindow):
         beam_group.setLayout(beam_layout)
         self.tri_pri_layout.addWidget(beam_group)
         
-        # PRI文件设置
-        pri_group = QGroupBox("PRI文件设置")
+        # PRIfileSet
+        pri_group = QGroupBox("PRIfileSet")
         pri_layout = QVBoxLayout()
         
-        # 像素范围显示区域
-        pixel_range_group = QGroupBox("像素范围")
+        # pixels范围显示区域
+        pixel_range_group = QGroupBox("pixels范围")
         pixel_range_layout = QGridLayout()
         
         # X范围
@@ -232,7 +232,7 @@ class NebulaGUI(QMainWindow):
         y_max_label = QLabel("Y最大值:")
         self.y_max_value = QLabel("0")
         
-        # 添加到网格布局
+        # 添加to网格Layout
         pixel_range_layout.addWidget(x_min_label, 0, 0)
         pixel_range_layout.addWidget(self.x_min_value, 0, 1)
         pixel_range_layout.addWidget(x_max_label, 0, 2)
@@ -245,8 +245,8 @@ class NebulaGUI(QMainWindow):
         pixel_range_group.setLayout(pixel_range_layout)
         pri_layout.addWidget(pixel_range_group)
         
-        # ROI设置区域
-        roi_group = QGroupBox("ROI区域设置")
+        # ROISet区域
+        roi_group = QGroupBox("ROI区域Set")
         roi_layout = QGridLayout()
         
         # ROI X范围
@@ -271,12 +271,12 @@ class NebulaGUI(QMainWindow):
         self.roi_y_max_spin.setRange(-100000, 100000)
         self.roi_y_max_spin.setValue(0)
         
-        # 使用ROI区域的复选框
+        # 使用ROI区域of复选框
         self.use_roi_checkbox = QCheckBox("使用ROI区域")
         self.use_roi_checkbox.setChecked(False)
         self.use_roi_checkbox.stateChanged.connect(self.toggle_roi_controls)
         
-        # 添加到网格布局
+        # 添加to网格Layout
         roi_layout.addWidget(roi_x_min_label, 0, 0)
         roi_layout.addWidget(self.roi_x_min_spin, 0, 1)
         roi_layout.addWidget(roi_x_max_label, 0, 2)
@@ -290,9 +290,9 @@ class NebulaGUI(QMainWindow):
         roi_group.setLayout(roi_layout)
         pri_layout.addWidget(roi_group)
         
-        # 像素大小
+        # pixels大小
         pixel_size_layout = QHBoxLayout()
-        pixel_size_label = QLabel("像素大小 (nm):")
+        pixel_size_label = QLabel("pixels大小 (nm):")
         self.pixel_size_spin = QDoubleSpinBox()
         self.pixel_size_spin.setRange(0.1, 100)
         self.pixel_size_spin.setValue(2)
@@ -312,9 +312,9 @@ class NebulaGUI(QMainWindow):
         energy_layout.addWidget(self.energy_spin)
         pri_layout.addLayout(energy_layout)
         
-        # 每像素电子数
+        # 每pixels电子数
         epx_layout = QHBoxLayout()
-        epx_label = QLabel("每像素电子数:")
+        epx_label = QLabel("每pixels电子数:")
         self.epx_spin = QSpinBox()
         self.epx_spin.setRange(1, 10000)
         self.epx_spin.setValue(500)
@@ -346,8 +346,8 @@ class NebulaGUI(QMainWindow):
         pri_group.setLayout(pri_layout)
         self.tri_pri_layout.addWidget(pri_group)
         
-        # 日志输出区域
-        log_group = QGroupBox("日志输出")
+        # 日志output区域
+        log_group = QGroupBox("日志output")
         log_layout = QVBoxLayout()
         self.tri_pri_log_text = QTextEdit()
         self.tri_pri_log_text.setReadOnly(True)
@@ -355,70 +355,70 @@ class NebulaGUI(QMainWindow):
         log_group.setLayout(log_layout)
         self.tri_pri_layout.addWidget(log_group)
         
-        # 进度条
+        # 进degrees条
         self.tri_pri_progress_bar = QProgressBar()
-        self.tri_pri_progress_bar.setRange(0, 0)  # 设置为不确定模式
+        self.tri_pri_progress_bar.setRange(0, 0)  # Set为不确定模式
         self.tri_pri_progress_bar.setVisible(True)
         self.tri_pri_layout.addWidget(self.tri_pri_progress_bar)
         
         # 按钮区域
         button_layout = QHBoxLayout()
-        self.generate_tri_btn = QPushButton("生成TRI文件")
+        self.generate_tri_btn = QPushButton("generationTRIfile")
         self.generate_tri_btn.clicked.connect(self.generate_tri_file)
-        self.generate_pri_btn = QPushButton("生成PRI文件")
+        self.generate_pri_btn = QPushButton("generationPRIfile")
         self.generate_pri_btn.clicked.connect(self.generate_pri_file)
         button_layout.addStretch()
         button_layout.addWidget(self.generate_tri_btn)
         button_layout.addWidget(self.generate_pri_btn)
         self.tri_pri_layout.addLayout(button_layout)
         
-        # 初始化默认值
+        # Initialize默认值
         self.update_tilt_values()
         
-        # 初始化ROI控件状态
+        # InitializeROI控件状态
         self.toggle_roi_controls(Qt.CheckState.Unchecked)
         
-        # 初始化时不设置默认路径，将在选择STL文件后自动设置
+        # Initialize时不Set默认path，ConvertonSelectSTLfile后自动Set
 
 
     def select_nebula_gpu_path(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择 nebula_gpu 可执行文件", "", "Executable Files (*)")
+        path, _ = QFileDialog.getOpenFileName(self, "Select nebula_gpu 可执行file", "", "Executable Files (*)")
         if path:
             self.nebula_gpu_input.setText(path)
 
     def select_file(self, input_widget, file_filter="All Files (*)"):
-        path, _ = QFileDialog.getOpenFileName(self, "选择文件", "", file_filter)
+        path, _ = QFileDialog.getOpenFileName(self, "Selectfile", "", file_filter)
         if path:
             input_widget.setText(path)
 
     def select_mat_files(self):
         paths = []
         while True:
-            path, _ = QFileDialog.getOpenFileName(self, "选择 .mat 文件", "", "MAT Files (*.mat);;All Files (*)")
+            path, _ = QFileDialog.getOpenFileName(self, "Select .mat file", "", "MAT Files (*.mat);;All Files (*)")
             if not path:
                 break
             paths.append(path)
             self.mat_input.setText(", ".join(paths))
-            reply = QMessageBox.question(self, "继续选择", "是否继续选择下一个 .mat 文件？", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            reply = QMessageBox.question(self, "继续Select", "是否继续Select下一个 .mat file？", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             if reply == QMessageBox.StandardButton.No:
                 break
         if paths:
             self.mat_input.setText(", ".join(paths))
 
     def select_output_path(self):
-        path, _ = QFileDialog.getSaveFileName(self, "选择输出文件路径", "", "All Files (*)")
+        path, _ = QFileDialog.getSaveFileName(self, "Selectoutputfilepath", "", "All Files (*)")
         if path:
             self.output_path_input.setText(path)
             
     def browse_stl_file(self):
-        """浏览选择STL文件"""
+        """浏览SelectSTLfile"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "选择STL文件", "", "STL文件 (*.stl);;所有文件 (*.*)"
+            self, "SelectSTLfile", "", "STLfile (*.stl);;所有file (*.*)"
         )
         if file_path:
             self.stl_path_edit.setText(file_path)
             
-            # 自动设置输出目录为STL文件所在的目录
+            # 自动Setoutputdirectory为STLfile所onofdirectory
             stl_dir = str(pathlib.Path(file_path).parent)
             self.tri_pri_output_path_edit.setText(stl_dir)
     
@@ -435,23 +435,23 @@ class NebulaGUI(QMainWindow):
             self.sample_tilt_spin.setValue(0)
             self.sample_tilt_new_z_spin.setValue(0)
             self.det_tilt_spin.setValue(76.8)
-            self.det_tilt_spin.setEnabled(True)  # 电子束模式下启用探测器倾转角
+            self.det_tilt_spin.setEnabled(True)  # 电子束模式下Enable探测器倾转角
             
     def toggle_roi_controls(self, state):
         """
-        根据 ROI（Region of Interest）复选框的状态，启用或禁用 ROI 相关控件。
+        根据 ROI（Region of Interest）复选框of状态，Enable或禁用 ROI 相关控件。
 
-        当复选框被勾选时（非未选中状态），ROI 控件（包括 X/Y 轴的最小/最大值输入框）将被启用，
-        允许用户输入 ROI 的范围值。当复选框未被勾选时，这些控件将被禁用，防止用户修改。
+        当复选框被勾选时（非未选中状态），ROI 控件（包括 X/Y axis最小/最大值input框）Convert被Enable，
+        允许用户input ROI of范围值。当复选框未被勾选时，这些控件Convert被禁用，防止用户修改。
 
         Args:
-            state (Qt.CheckState): 复选框的状态，可以是以下值之一：
+            state (Qt.CheckState): 复选框of状态，可以是以下值之一：
                 - Qt.CheckState.Unchecked: 未选中状态
                 - Qt.CheckState.PartiallyChecked: 部分选中状态
                 - Qt.CheckState.Checked: 选中状态
         """
         if state == Qt.CheckState.Checked.value:
-            # 启用 ROI 控件
+            # Enable ROI 控件
             self.roi_x_min_spin.setEnabled(True)
             self.roi_x_max_spin.setEnabled(True)
             self.roi_y_min_spin.setEnabled(True)
@@ -467,41 +467,41 @@ class NebulaGUI(QMainWindow):
         
         
     def update_pixel_range(self, x_min, x_max, y_min, y_max):
-        """更新像素范围标签并设置ROI默认值"""
+        """更新pixels范围标签并SetROI默认值"""
         # 更新标签
         self.x_min_value.setText(str(x_min))
         self.x_max_value.setText(str(x_max))
         self.y_min_value.setText(str(y_min))
         self.y_max_value.setText(str(y_max))
         
-        # 设置ROI默认值
+        # SetROI默认值
         self.roi_x_min_spin.setValue(x_min)
         self.roi_x_max_spin.setValue(x_max)
         self.roi_y_min_spin.setValue(y_min)
         self.roi_y_max_spin.setValue(y_max)
         
-        # 设置ROI范围
+        # SetROI范围
         self.roi_x_min_spin.setRange(x_min, x_max)
         self.roi_x_max_spin.setRange(x_min, x_max)
         self.roi_y_min_spin.setRange(y_min, y_max)
         self.roi_y_max_spin.setRange(y_min, y_max)
     
     def tri_pri_log(self, message):
-        """添加TRI和PRI生成器日志消息"""
+        """添加TRI和PRIgeneration器日志消息"""
         self.tri_pri_log_text.append(message)
-        # 滚动到底部
+        # 滚动to底部
         self.tri_pri_log_text.verticalScrollBar().setValue(
             self.tri_pri_log_text.verticalScrollBar().maximum()
         )
     
     def generate_tri_file(self):
-        """仅生成.tri文件"""
-        # 检查输入
+        """仅generation.trifile"""
+        # 检查input
         if not self.stl_path_edit.text():
-            QMessageBox.warning(self, "警告", "请选择STL文件")
+            QMessageBox.warning(self, "警告", "请SelectSTLfile")
             return
                 
-        # 收集参数
+        # 收集parameters
         params = {
             'voxel_path': pathlib.Path(self.stl_path_edit.text()),
             'mesh_path': pathlib.Path(self.tri_pri_output_path_edit.text()),
@@ -514,7 +514,7 @@ class NebulaGUI(QMainWindow):
         # 清空日志
         #self.tri_pri_log_text.clear()
                 
-        # 创建并启动工作线程
+        # Create并启动工作线程
         self.tri_worker = TriGeneratorWorker(params)
         self.tri_worker.progress_signal.connect(self.tri_pri_log)
         self.tri_worker.finished_signal.connect(self.on_tri_generation_finished)
@@ -522,23 +522,23 @@ class NebulaGUI(QMainWindow):
         self.tri_worker.start()
     
     def on_tri_generation_finished(self, success, message, tri_file_path):
-        """仅生成.tri文件完成的回调"""
+        """仅generation.trifile完成of回调"""
  
         if success:
             self.tri_pri_log("✅ " + message)
             QMessageBox.information(self, "成功", message)
             
-            # 直接使用传递过来的tri文件路径
-            self.tri_pri_log(f"使用tri文件: {tri_file_path}")
+            # 直接使用传递过来oftrifilepath
+            self.tri_pri_log(f"使用trifile: {tri_file_path}")
             
-            # 填充路径到输入框
+            # 填充pathtoinput框
             if tri_file_path:
                 self.tri_input.setText(tri_file_path)
             
-            # 自动填充主界面的tri文件路径
+            # 自动填充主界面oftrifilepath
             self.tri_input.setText(tri_file_path)
             
-            # 保存d_zmin和d_zmax值，以便在generate_pri_file中使用
+            # 保存d_zmin和d_zmax值，以便ongenerate_pri_file中使用
             self.d_zmin = self.tri_worker.d_zmin
             self.d_zmax = self.tri_worker.d_zmax
             self.R = self.tri_worker.R
@@ -549,11 +549,11 @@ class NebulaGUI(QMainWindow):
             QMessageBox.critical(self, "错误", message)
 
     def generate_pri_file(self):
-        """生成.pri文件"""
+        """generation.prifile"""
     
-        # 检查输入
+        # 检查input
         if not self.tri_input.text():
-            QMessageBox.warning(self, "警告", "请先生成或选择.tri文件")
+            QMessageBox.warning(self, "警告", "请先generation或Select.trifile")
             self.generate_pri_btn.setEnabled(True)
             return
 
@@ -564,7 +564,7 @@ class NebulaGUI(QMainWindow):
         # self.tri_pri_log(f"初始设定ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
         # #if self.sample_tilt_spin.value() != 0:
         #     #if self.sample_tilt_new_z_spin.value()!=0:
-        #         # 计算像素范围
+        #         # 计算pixels范围
         # # x_min_ori = int(torch.floor(torch.min(self.v_orig[:, 0])).item())
         # # x_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 0])).item())   
         # # y_min_ori = int(torch.floor(torch.min(self.v_orig[:, 1])).item())
@@ -573,8 +573,8 @@ class NebulaGUI(QMainWindow):
         # z_min_ori = int(torch.floor(torch.min(self.v_orig[:, 2])).item())
         # z_max_ori = int(torch.ceil(torch.max(self.v_orig[:, 2])).item())
         # # z_size_ori = z_max_ori - z_min_ori
-        # # y_max_offset = abs(z_size_ori * np.sin(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
-        # # y_min_offset = abs(z_size_ori * np.cos(np.radians(self.sample_tilt_spin.value())))  # 计算Y方向的偏移量
+        # # y_max_offset = abs(z_size_ori * np.sin(np.radians(self.sample_tilt_spin.value())))  # 计算Y方toof偏移量
+        # # y_min_offset = abs(z_size_ori * np.cos(np.radians(self.sample_tilt_spin.value())))  # 计算Y方toof偏移量
         # # # x_min = int(self.x_min_value.text())
         # # # x_max = int(self.x_max_value.text())
         # # # y_min = int(self.y_min_value.text())
@@ -589,7 +589,7 @@ class NebulaGUI(QMainWindow):
         # # # x_offset_max = max(x_min_offset, x_max_offset)
         # # # y_offset_max = max(y_min_offset, y_max_offset)*2
         # # self.tri_pri_log(f"偏移量:  Y({y_min_offset:.1f}, {y_max_offset:.1f})")
-        # # self.tri_pri_log(f"原始像素范围: X({x_min_ori}, {x_max_ori}), Y({y_min_ori}, {y_max_ori})")
+        # # self.tri_pri_log(f"原始pixels范围: X({x_min_ori}, {x_max_ori}), Y({y_min_ori}, {y_max_ori})")
 
         # roi_v = torch.tensor([
         #     [roi_x_min, roi_y_min, z_max_ori],
@@ -613,19 +613,19 @@ class NebulaGUI(QMainWindow):
         # roi_y_min = int(torch.floor(torch.min(roi_rotated[:, 1])).item())
         # roi_y_max = int(torch.ceil(torch.max(roi_rotated[:, 1])).item())
 
-        # # 计算新的ROI范围。绕x轴旋转，x方向偏移量不考虑
+        # # 计算新ofROI范围。aroundxaxisRotation，x方to偏移量不考虑
         # # roi_x_min = roi_x_min # - x_offset_max
         # # roi_x_max = roi_x_max #- x_offset_max
         # # roi_y_min = int(roi_y_min - y_min_offset)
         # # roi_y_max = int(roi_y_max - y_max_offset)
-        # self.tri_pri_log(f"根据样品倾转角更新后的ROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
+        # self.tri_pri_log(f"根据样品倾转角更新后ofROI范围: X({roi_x_min:.1f}, {roi_x_max:.1f}), Y({roi_y_min:.1f}, {roi_y_max:.1f})")
         # # 更新ROI范围
         # self.roi_x_min_spin.setValue(roi_x_min)
         # self.roi_x_max_spin.setValue(roi_x_max)
         # self.roi_y_min_spin.setValue(roi_y_min)
         # self.roi_y_max_spin.setValue(roi_y_max)
 
-        # 收集参数
+        # 收集parameters
         params = {
             'mesh_path': pathlib.Path(self.tri_pri_output_path_edit.text()),
             'pixel_size': self.pixel_size_spin.value(),
@@ -638,7 +638,7 @@ class NebulaGUI(QMainWindow):
             'roi_x_max': self.roi_x_max_spin.value(),
             'roi_y_min': self.roi_y_min_spin.value(),
             'roi_y_max': self.roi_y_max_spin.value(),
-            # 添加d_zmin和d_zmax参数
+            # 添加d_zmin和d_zmaxparameters
             'd_zmin': self.d_zmin,
             'd_zmax': self.d_zmax
         }
@@ -649,7 +649,7 @@ class NebulaGUI(QMainWindow):
         # 记录d_zmin和d_zmax值
         self.tri_pri_log(f"使用d_zmin: {self.d_zmin}, d_zmax: {self.d_zmax}计算beam_zmax")
        
-        # 创建并启动工作线程
+        # Create并启动工作线程
         sample_tilt = self.sample_tilt_spin.value()
         self.pri_worker = PriGeneratorWorker(params, sample_tilt)
         self.pri_worker.progress_signal.connect(self.tri_pri_log)
@@ -657,16 +657,16 @@ class NebulaGUI(QMainWindow):
         self.pri_worker.start()
     
     def on_pri_generation_finished(self, success, message, pri_file_path):
-        """生成.pri文件完成的回调"""
+        """generation.prifile完成of回调"""
         
         if success:
             self.tri_pri_log("✅ " + message)
             QMessageBox.information(self, "成功", message)
             
-            # 直接使用传递过来的pri文件路径
-            self.tri_pri_log(f"使用pri文件: {pri_file_path}")
+            # 直接使用传递过来ofprifilepath
+            self.tri_pri_log(f"使用prifile: {pri_file_path}")
             
-            # 填充路径到输入框
+            # 填充pathtoinput框
             if pri_file_path:
                 self.pri_input.setText(pri_file_path)
         else:
@@ -683,19 +683,19 @@ class NebulaGUI(QMainWindow):
         output_path = self.output_path_input.text()
 
         if not nebula_gpu_path:
-            QMessageBox.warning(self, "警告", "请选择 nebula_gpu 可执行文件路径！")
+            QMessageBox.warning(self, "警告", "请Select nebula_gpu 可执行filepath！")
             return
         if not tri_path:
-            QMessageBox.warning(self, "警告", "请选择 .tri 文件路径！")
+            QMessageBox.warning(self, "警告", "请Select .tri filepath！")
             return
         if not pri_path:
-            QMessageBox.warning(self, "警告", "请选择 .pri 文件路径！")
+            QMessageBox.warning(self, "警告", "请Select .pri filepath！")
             return
         if not mat_paths:
-            QMessageBox.warning(self, "警告", "请选择 .mat 文件路径！")
+            QMessageBox.warning(self, "警告", "请Select .mat filepath！")
             return
         if not output_path:
-            QMessageBox.warning(self, "警告", "请选择输出文件路径！")
+            QMessageBox.warning(self, "警告", "请Selectoutputfilepath！")
             return
 
         mat_paths_list = [f'"{path.strip()}"' for path in mat_paths.split(",")]
@@ -734,7 +734,7 @@ class WorkerThread(QThread):
 
         progress_completed = False
         progress_100_time = None
-        # 使用 select 监听标准输出和错误
+        # 使用 select Monitor标准output和错误
         while True:
             reads = [process.stdout.fileno(), process.stderr.fileno()]
             ret = select.select(reads, [], [])
@@ -746,24 +746,24 @@ class WorkerThread(QThread):
                         self.log_signal.emit(error_stripped)
                         # 检测是否为detected: 0
                         if "running: 0 | detected: 0" in error_stripped:
-                            message = "检测到detected: 0，需要对输入进行优化"
+                            message = "检测todetected: 0，需要对input进行优化"
                             self.log_signal.emit(message)
                             process.terminate()
                             return_code = 1
-                            message2 = "nebula_gpu 运行结束，未检测到有效数据，请优化输入"
+                            message2 = "nebula_gpu 运行结束，未检测to有效数据，请优化input"
                             self.log_signal.emit(message2)
                             return
                         
-                        # 检测进度是否为100.00%
+                        # 检测进degrees是否为100.00%
                         if "Progress 100.00%" in error_stripped and not progress_completed:                       
-                            message = "检测到进度100.00%，将在20秒后终止进程并展示结果"
+                            message = "检测to进degrees100.00%，Converton20秒后终止进程并展示结果"
                             self.log_signal.emit(message)
                             progress_completed = True
                             progress_100_time = time.time()
                             
-                        # 如果已经检测到100%进度且已经过了5秒，则终止进程
+                        # if已经检测to100%进degrees且已经过了5秒，则终止进程
                         if progress_completed and progress_100_time is not None and time.time() - progress_100_time >= 20:
-                            message1 = "如果等待20秒完成，进程未自然结束，则终止进程并展示结果"
+                            message1 = "if等待20秒完成，进程未自然结束，则终止进程并展示结果"
                             self.log_signal.emit(message1)
                             process.terminate()
                             message2 = "nebula_gpu 运行成功！"
@@ -780,32 +780,32 @@ class WorkerThread(QThread):
 
         # except Exception as e:
         #     error_msg = f"调用 nebula_gpu 时发生异常: {str(e)}"
-        #     print(f"[ERROR] {error_msg}")  # 在终端打印异常信息
+        #     print(f"[ERROR] {error_msg}")  # on终端打印异常信息
         #     self.log_signal.emit(error_msg)
             
     def show_image(self):
         # 自动调用 sem-analysis.py
         try:
-            self.log_signal.emit(f"开始调用 sem-analysis.py 展示图像，输出文件: {self.output_file}")
+            self.log_signal.emit(f"开始调用 sem-analysis.py 展示图像，outputfile: {self.output_file}")
             
-            # 定义脚本路径
+            # 定义脚本path
             import os
             import sys
             
-            # 获取当前脚本所在目录
+            # Get当前脚本所ondirectory
             current_dir = os.path.dirname(os.path.abspath(__file__))
             primary_script_path = os.path.join(current_dir, "sem-analysis.py")
             
-            # 如果当前目录下没有，则尝试使用相对路径
+            # if当前directory下没有，则尝试使用相对path
             if not os.path.exists(primary_script_path):
                 primary_script_path = "sem-analysis.py"
             
             # 使用系统Python解释器
             python_path = sys.executable
             
-            # 检查主要路径是否存在
+            # 检查主要path是否存on
             if not os.path.exists(primary_script_path):
-                self.log_signal.emit(f"未找到 sem-analysis.py，请确保该文件在当前目录或指定路径下")
+                self.log_signal.emit(f"未找to sem-analysis.py，请确保该fileon当前directory或指定path下")
                 return
             else:
                 script_path = primary_script_path
@@ -826,35 +826,35 @@ class WorkerThread(QThread):
             for error in analysis_process.stderr:
                 if error:
                     error_stripped = error.strip()
-                    # 过滤掉GTK相关的警告信息
+                    # 过滤掉GTK相关of警告信息
                     if not ("Gtk-CRITICAL" in error_stripped or 
                             "gtk_tree_view_scroll_to_cell" in error_stripped or
                             "assertion" in error_stripped):
                         self.log_signal.emit(error_stripped)
             analysis_process.wait()
-            self.log_signal.emit(f"sem-analysis.py 执行完成，返回码: {analysis_process.returncode}")
+            self.log_signal.emit(f"sem-analysis.py 执行完成，Returns码: {analysis_process.returncode}")
         except Exception as e:
             error_msg = f"调用 sem-analysis.py 时发生异常: {str(e)}"
             self.log_signal.emit(error_msg)
        
 class PriGeneratorWorker(QThread):
-    """工作线程，仅用于生成.pri文件"""
+    """工作线程，仅用于generation.prifile"""
     progress_signal = pyqtSignal(str)
-    finished_signal = pyqtSignal(bool, str, str)  # 成功标志, 消息, pri文件路径
+    finished_signal = pyqtSignal(bool, str, str)  # 成功标志, 消息, prifilepath
     
     def __init__(self, params, sample_tilt=0):
         super().__init__()
         self.params = params
-        self.pri_file_path = None  # 用于存储生成的pri文件路径
-        # 添加d_zmax和d_zmin参数
+        self.pri_file_path = None  # 用于存储generationofprifilepath
+        # 添加d_zmax和d_zminparameters
         self.d_zmax = params.get('d_zmax', 0)
         self.d_zmin = params.get('d_zmin', 0)
-        self.R = None  # 初始化旋转矩阵
-        self.sample_tilt = sample_tilt  # 存储传递的sample_tilt值
+        self.R = None  # Initialize rotation matrix
+        self.sample_tilt = sample_tilt  # 存储传递ofsample_tilt值
         
     def run(self):
         try:
-            # 提取参数
+            # 提取parameters
             mesh_path = self.params['mesh_path']
             #beam_type = self.params.get('beam_type', 'electron_beam')
             pixel_size = self.params['pixel_size']
@@ -869,32 +869,32 @@ class PriGeneratorWorker(QThread):
             roi_y_max = self.params['roi_y_max']
             
             
-            self.progress_signal.emit("正在生成.pri文件...")
+            self.progress_signal.emit("正ongeneration.prifile...")
             
-            # 计算像素数量
+            # 计算pixels数量
             x_pixel_num = int((np.abs(roi_x_max)+np.abs(roi_x_min))/pixel_size+1)
             y_pixel_num = int((np.abs(roi_y_max)+np.abs(roi_y_min))/pixel_size+1)
             
-            self.progress_signal.emit(f"像素数量: {x_pixel_num} x {y_pixel_num}")
+            self.progress_signal.emit(f"pixels数量: {x_pixel_num} x {y_pixel_num}")
             
-            # 生成像素坐标
+            # generationpixels坐标
             xpx = np.linspace(roi_x_min, roi_x_max, x_pixel_num)
             ypx = np.linspace(roi_y_min, roi_y_max, y_pixel_num)
             
-            # 设置束入射方向
+            # Set束入射方to
             beam_incident_dir = np.array([0, 0, -1])
             
-            self.progress_signal.emit(f"束入射方向: {beam_incident_dir}")
+            self.progress_signal.emit(f"束入射方to: {beam_incident_dir}")
             
-            # 生成.pri文件
+            # generation.prifile
             pri_file_path = mesh_path/'sem.pri'
             try:
-                # 计算束的z位置，使用tri类传出的d_zmax和d_zmin值
+                # 计算束ofz位置，使用tri类传出ofd_zmax和d_zmin值
                 beam_zmax = (self.d_zmax + self.d_zmin) / 2
                 self.progress_signal.emit(f"束z位置: {beam_zmax}")
                 
                 generate_sem_pri_data(
-                    z=beam_zmax,  # 使用tri类传出的d_zmax值计算的beam_zmax
+                    z=beam_zmax,  # 使用tri类传出ofd_zmax值计算ofbeam_zmax
                     xpx=xpx,
                     ypx=ypx,
                     energy=energy,
@@ -907,17 +907,17 @@ class PriGeneratorWorker(QThread):
                     file_path=pri_file_path
                 )
                 
-                # 验证.pri文件是否成功生成
+                # 验证.prifile是否成功generation
                 if not pri_file_path.exists():
-                    raise Exception("未生成.pri文件")
+                    raise Exception("未generation.prifile")
                 
                 self.pri_file_path = str(pri_file_path)
                 
-                self.progress_signal.emit(f"✅成功生成.pri文件: {self.pri_file_path}")
-                self.finished_signal.emit(True, "成功生成.pri文件", self.pri_file_path)
+                self.progress_signal.emit(f"✅成功generation.prifile: {self.pri_file_path}")
+                self.finished_signal.emit(True, "成功generation.prifile", self.pri_file_path)
 
             except Exception as e:
-                error_msg = f"生成.pri文件时发生错误: {str(e)}"
+                error_msg = f"generation.prifile时发生错误: {str(e)}"
                 self.progress_signal.emit(f"❌ {error_msg}")
                 self.finished_signal.emit(False, error_msg, "")
             
@@ -929,23 +929,23 @@ class PriGeneratorWorker(QThread):
 
 
 class TriGeneratorWorker(QThread):
-    """工作线程，仅用于生成.tri文件"""
+    """工作线程，仅用于generation.trifile"""
     progress_signal = pyqtSignal(str)
-    finished_signal = pyqtSignal(bool, str, str)  # 成功标志, 消息, tri文件路径
+    finished_signal = pyqtSignal(bool, str, str)  # 成功标志, 消息, trifilepath
     update_pixel_range_signal = pyqtSignal(int, int, int, int)  # x_min, x_max, y_min, y_max
     
     def __init__(self, params):
         super().__init__()
         self.params = params
-        self.tri_file_path = None  # 用于存储生成的tri文件路径
-        self.d_zmin = 0  # 初始化d_zmin
-        self.d_zmax = 0  # 初始化d_zmax
-        self.R = None  # 初始化旋转矩阵
-        #self.v_orig = None  # 初始化原始顶点
+        self.tri_file_path = None  # 用于存储generationoftrifilepath
+        self.d_zmin = 0  # Initialized_zmin
+        self.d_zmax = 0  # Initialized_zmax
+        self.R = None  # Initialize rotation matrix
+        #self.v_orig = None  # Initialize原始顶点
 
     def run(self):
         try:
-            # 提取参数
+            # 提取parameters
             voxel_path = self.params['voxel_path']
             mesh_path = self.params['mesh_path']
             beam_type = self.params.get('beam_type', 'electron_beam')
@@ -953,21 +953,21 @@ class TriGeneratorWorker(QThread):
             sample_tilt_new_z = self.params['sample_tilt_new_z']
             det_tilt_x = self.params['det_tilt_x']
             
-            # 设置样品倾转角和探测器倾转角
+            # Set样品倾转角和探测器倾转角
             if beam_type == "ion_beam":
-                # 离子束成像
+                # Ion beam imaging
                 sample_tilt_x = 0 if sample_tilt_x is None else sample_tilt_x
                 det_tilt_x = 0  # 离子束模式下固定探测器倾转角为0
             else:
-                # 电子束成像
+                # Electron beam imaging
                 sample_tilt_x = 0 if sample_tilt_x is None else sample_tilt_x
                 det_tilt_x = 76.8 if det_tilt_x is None else det_tilt_x
             
             self.progress_signal.emit(f"开始处理：{voxel_path}")
-            self.progress_signal.emit(f"样品倾转角: {sample_tilt_x}°, 样品新Z轴旋转角: {sample_tilt_new_z}°, 探测器倾转角: {det_tilt_x}°")
+            self.progress_signal.emit(f"样品倾转角: {sample_tilt_x}°, 样品新Zaxisrotation angle: {sample_tilt_new_z}°, 探测器倾转角: {det_tilt_x}°")
             
-            # 生成.tri文件
-            self.progress_signal.emit("正在生成.tri文件...")
+            # generation.trifile
+            self.progress_signal.emit("正ongeneration.trifile...")
             try:
                 v, faces, d_zmin, d_zmax, tri_file_path,R = run_interface(
                     voxel_path, 
@@ -986,15 +986,15 @@ class TriGeneratorWorker(QThread):
                 self.progress_signal.emit(f"d_zmin: {d_zmin}, d_zmax: {d_zmax}")
                 
                 if v is None or faces is None:
-                    self.progress_signal.emit("❌ 生成.tri文件失败")
-                    self.finished_signal.emit(False, "生成.tri文件失败", "")
+                    self.progress_signal.emit("❌ generation.trifile失败")
+                    self.finished_signal.emit(False, "generation.trifile失败", "")
                     return
                 
-                self.progress_signal.emit(f"✅成功生成.tri文件: {tri_file_path}")
-                # 保存.tri文件路径并转换为字符串类型
+                self.progress_signal.emit(f"✅成功generation.trifile: {tri_file_path}")
+                # 保存.trifilepath并转换为字符串类型
                 self.tri_file_path = str(tri_file_path)
                 
-                # 计算像素范围
+                # 计算pixels范围
                 x_min = int(torch.floor(torch.min(v[:, 0])).item())
                 x_max = int(torch.ceil(torch.max(v[:, 0])).item())   
                 y_min = int(torch.floor(torch.min(v[:, 1])).item())
@@ -1002,15 +1002,15 @@ class TriGeneratorWorker(QThread):
                 
                 self.progress_signal.emit(f"x_min, x_max, y_min, y_max = {x_min}, {x_max}, {y_min}, {y_max}")
                 
-                # 发送信号更新GUI中的像素范围标签
+                # 发送信号更新GUI中ofpixels范围标签
                 self.update_pixel_range_signal.emit(x_min, x_max, y_min, y_max)
                 
                 # 完成
-                self.finished_signal.emit(True, "成功生成.tri文件", self.tri_file_path)
+                self.finished_signal.emit(True, "成功generation.trifile", self.tri_file_path)
 
             except Exception as e:
-                self.progress_signal.emit(f"❌ 生成.tri文件时发生异常: {str(e)}")
-                self.finished_signal.emit(False, f"生成.tri文件时发生异常: {str(e)}", "")
+                self.progress_signal.emit(f"❌ generation.trifile时发生异常: {str(e)}")
+                self.finished_signal.emit(False, f"generation.trifile时发生异常: {str(e)}", "")
                 return
                 
         except Exception as e:
