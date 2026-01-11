@@ -33,7 +33,7 @@ class TriVisualizer(QMainWindow):
         self.file_path_display.setPlaceholderText("File path will be displayed here")
         self.layout.addWidget(self.file_path_display)
         
-        self.button = QPushButton("Selectfile")
+        self.button = QPushButton("Select file")
         self.button.clicked.connect(self.open_file_dialog)
         self.layout.addWidget(self.button)
         

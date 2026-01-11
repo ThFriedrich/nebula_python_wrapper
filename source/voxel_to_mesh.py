@@ -11,30 +11,30 @@ import pyvista as pv
 from rotation_matrix import rotation_matrix
 from detector import read_detector_str
 from detector import detector_str
-def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_tilt_new_z=0, sample_tilt_y=0, det_tilt_x=0, det_tilt_y=0):  # final_sideSet为1000
+def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_tilt_new_z=0, sample_tilt_y=0, det_tilt_x=0, det_tilt_y=0):  # final_side set to 1000
     """
-    fromSTLfilegeneration网格
+    Generate mesh from STL file
     
     parameters:
-        stl_path: STLfilepath
-        output_path: outputpath
-        final_side: Final mesh size。目前Set为模型实际of大小。
-        scale: Scaling factor。目前Set为10，Convert1微米视为0.001微米，then convert to nanometers，purely to accelerate computation。
-        tilt_x: Xaxisrotation angledegrees
-        tilt_y: Yaxisrotation angledegrees
-        pad_scale: 填充Scaling factor
+        stl_path: STL file path
+        output_path: output path
+        final_side: Final mesh size. Currently set to actual model size.
+        scale: Scaling factor. Currently set to 10, treating 1 micrometer as 0.001 micrometers, then convert to nanometers, purely to accelerate computation.
+        tilt_x: X axis rotation angle (degrees)
+        tilt_y: Y axis rotation angle (degrees)
+        pad_scale: Padding scaling factor
     """
     stl_path = sanitize_path(stl_path)
     tri_dir = sanitize_path(tri_dir)
 
     os.makedirs(tri_dir, exist_ok=True)
-    # 保留原始filename
+    # Preserve original filename
     name = os.path.basename(stl_path).split('.')[0]
     
-    # ReadSTLfile
+    # Read STL file
     t_start = time.time()
     mesh = pv.read(stl_path)
-    points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
+    points = torch.tensor(mesh.points, dtype=torch.float32)  # Explicitly convert to Tensor
 
     R = torch.eye(3, device=points.device).float()
     # Apply tilts
@@ -42,9 +42,9 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
         if sample_tilt_x != 0:
             
             mesh = mesh.rotate_x(sample_tilt_x, point=(0,0,0), inplace=False)
-            points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
-            # aroundxaxisRotation后，if样品倾转角为55degrees，around样品表面法线方toRotation
-            # 计算rotation angledegrees（弧degrees）
+            points = torch.tensor(mesh.points, dtype=torch.float32)  # Explicitly convert to Tensor
+            # After rotation around x-axis, if sample tilt angle is 55 degrees, rotate around sample surface normal direction
+            # Calculate rotation angle (radians)
             # tilt_new_z_rad = math.radians(sample_tilt_new_z)
              #tilt_new_z_rad_tensor = torch.tensor(tilt_new_z_rad, device=v.device)
             
@@ -57,7 +57,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 
         if sample_tilt_y != 0:
             mesh.rotate_y(sample_tilt_y, point=(0,0,0), inplace=False)
-            points = torch.tensor(mesh.points, dtype=torch.float32)  # 显式转换为 Tensor
+            points = torch.tensor(mesh.points, dtype=torch.float32)  # Explicitly convert to Tensor
             # # around Y axisRotation后ofRotationaxis方to（新of Z axis方to）
             # rotation_axis = torch.tensor([sin_ty, 0, cos_ty], device=v.device)
             R = rotation_matrix(tilt_y=sample_tilt_y, rotate_angle=sample_tilt_new_z)
@@ -109,7 +109,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 -127 -127  {d_xmax}   {d_ymin} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmax}   {mirror_ymax}     {terminator_z}
 -127 -127  {d_xmax}   {mirror_ymax} {terminator_z}  {d_xmin}   {d_ymin} {terminator_z}  {d_xmin}   {mirror_ymax}     {terminator_z}"""
 
-    # generationoutputfilename，保留原始filename
+    # generationoutputfilename，Preserve original filename
     output_filename = f'{name}_sampleTiltx{55-sample_tilt_x}_sampleTilty{sample_tilt_y}_sampleTiltNewZ{sample_tilt_new_z}_detTiltx{det_tilt_x}_{faces.size(0)}.tri'
     # 只对outputfilename进行安全处理，确保file系统兼容性
     safe_output_filename = ''.join(c if c.isalnum() or c in '_-.' else '_' for c in output_filename)
@@ -141,11 +141,11 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
     
     parameters:
         voxel_path: 体素filepath
-        output_path: outputpath
+        output_path: output path
         final_side: Final mesh size
-        tilt_x: Xaxisrotation angledegrees
-        tilt_y: Yaxisrotation angledegrees
-        pad_scale: 填充Scaling factor
+        tilt_x: X axis rotation angle (degrees)
+        tilt_y: Y axis rotation angle (degrees)
+        pad_scale: Padding scaling factor
         length: 体素数据长degrees
         reverse: 是否反转体素值
     """
@@ -153,7 +153,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
     tri_dir = sanitize_path(tri_dir)
     tri_dir = tri_dir / "mesh"
     tri_dir.mkdir(parents=True, exist_ok=True)
-    # 保留原始filename
+    # Preserve original filename
     name = voxel_path.stem
     try:
         voxel = io.imread(voxel_path)
@@ -278,7 +278,7 @@ def generate_mesh_from_stl(stl_path, tri_dir, scale=10, sample_tilt_x=0, sample_
 -127 -127  {xmax}   {ymin} {terminator_z}  {xmin}   {ymin} {terminator_z}  {xmax}   {ymax}     {terminator_z}
 -127 -127  {xmax}   {ymax} {terminator_z}  {xmin}   {ymin} {terminator_z}  {xmin}   {ymax}     {terminator_z}"""
 
-    # generationoutputfilename，保留原始filename
+    # generationoutputfilename，Preserve original filename
     output_filename = f'{name}_{actual_side_x}x{actual_side_y}to{final_side}_{actual_length}_tiltx{tilt_x}_tilty{tilt_y}_{faces.size(0)}.tri'
     # 只对outputfilename进行安全处理，确保file系统兼容性
     safe_output_filename = ''.join(c if c.isalnum() or c in '_-.' else '_' for c in output_filename)
@@ -307,7 +307,7 @@ def sanitize_path(path):
            (path.startswith("'") and path.endswith("'")):
             path = path[1:-1]
     
-    # 转换为Path对象，保留原始filename
+    # 转换为Path对象，Preserve original filename
     return pathlib.Path(str(path))
 
 def run_interface(voxel_path, mesh_path, scale=10, sample_tilt_x=0, sample_tilt_y=0, sample_tilt_new_z=0, det_tilt_x=0):  
@@ -318,7 +318,7 @@ def run_interface(voxel_path, mesh_path, scale=10, sample_tilt_x=0, sample_tilt_
         voxel_path (Path或str): 体素filepath，可以是任意filename（包含空格）
         mesh_path (Path或str): 网格file保存path
         side (int): 初始边长
-        scale: Scaling factor。目前Set为10，Convert1微米视为0.001微米，then convert to nanometers，purely to accelerate computation。
+        scale: Scaling factor. Currently set to 10, treating 1 micrometer as 0.001 micrometers, then convert to nanometers, purely to accelerate computation.
         length (int): 长degrees
         tilt_x (float): Xaxis倾斜角degrees
         tilt_y (float): Yaxis倾斜角degrees
@@ -327,7 +327,7 @@ def run_interface(voxel_path, mesh_path, scale=10, sample_tilt_x=0, sample_tilt_
         tuple: (顶点数据, 面片数据)
     """
     try:
-        # 处理path格式，但保留原始filename
+        # 处理path格式，但Preserve original filename
         voxel_path = sanitize_path(voxel_path)
         mesh_path = sanitize_path(mesh_path)
         
