@@ -1,92 +1,92 @@
 # Quick Start
 
-本页作为一张速查卡，帮助你快速跑通 STL→TRI→PRI→Nebula→DET→PNG 的端到端流程，并列出关键参数与常见问题。
+This page serves as a quick reference card to help you quickly run through the end-to-end STL→TRI→PRI→Nebula→DET→PNG workflow, listing key parameters and common issues.
 
-## 一、端到端流程（一步到位）
+## I. End-to-End Workflow (All-in-One)
 
-1) STL → TRI（含倾转与绕法线旋转）
-- 入口：`source/parameters.py` → `tri_parameters.run()` → `voxel_to_mesh.run_interface()`
-- 输出：`.tri`
+1) STL → TRI (including tilt and rotation around normal)
+- Entry point: `source/parameters.py` → `tri_parameters.run()` → `voxel_to_mesh.run_interface()`
+- Output: `.tri`
 
-2) ROI/能量等 → PRI（电子束输入）
-- 入口：`source/parameters.py` → `pri_parameters.run()` → `sem_pri.generate_sem_pri_data()`
-- 输出：`.pri`
+2) ROI/energy etc. → PRI (electron beam input)
+- Entry point: `source/parameters.py` → `pri_parameters.run()` → `sem_pri.generate_sem_pri_data()`
+- Output: `.pri`
 
-3) TRI + PRI + MAT → DET（调用 Nebula 可执行）
-- 入口：`source/run_nebula.py` → `nebula_gpu.run()`
-- 输出：`.det`
+3) TRI + PRI + MAT → DET (call Nebula executable)
+- Entry point: `source/run_nebula.py` → `nebula_gpu.run()`
+- Output: `.det`
 
-4) DET → PNG（可视化）
-- 入口：`source/analysis.py` → `sem_analysis()`
-- 输出：`.png`
+4) DET → PNG (visualization)
+- Entry point: `source/analysis.py` → `sem_analysis()`
+- Output: `.png`
 
-可复用脚本：
-- 自动批处理：`python source/auto_run_simulation.py`
-- 图像转视频 GUI：`python source/images_to_video_gui.py`
-
----
-
-## 二、关键参数速览
-
-- STL/几何
-  - `sample_tilt_x / sample_tilt_y`：样品绕 X/Y 轴倾转
-  - `sample_tilt_new_z`：倾转后绕样品法线方向的旋转角
-  - `det_tilt_x`：探测器绕 X 轴倾转角
-  - 编码（TRI）：样品 `0 -123`，探测器 `-125 -125`，环境 `-122/-127`
-
-- PRI/电子束
-  - `pixel_size`：像素尺寸（nm）
-  - `energy`：能量（eV/keV 视实现）
-  - `epx`：每像素电子数（Poisson 可开启）
-  - `roi_x_min/x_max/y_min/y_max`：ROI 区域（像素范围）
-  - `d_zmin / d_zmax`：来自 TRI 的探测器 z 范围，用于束 z 位置计算
-
-- 可执行/材料
-  - `nebula_gpu_path`：Nebula 可执行路径（Linux 示例：`source/nebula_gpu`）
-  - `mat_paths_list`：材料 `.mat` 列表（以空格拼接传入）
-  - 命令模板：`"nebula_gpu" "tri" "pri" material1.mat material2.mat > output.det`
-
-- 图像转视频 GUI（images_to_video_gui.py）
-  - 支持多图选择/追加、按名称/日期排序
-  - 帧率、分辨率（含自定义）、宽高比（保持/拉伸）、质量（高/标准/压缩）
-  - 编码器回退：HEVC(hev1) → H.264(avc1) → mp4v；自动修正偶数宽高
+Reusable scripts:
+- Automatic batch processing: `python source/auto_run_simulation.py`
+- Images to Video GUI: `python source/images_to_video_gui.py`
 
 ---
 
-## 三、常见问题（FAQ）
+## II. Key Parameters Overview
 
-- 生成视频失败或文件不可用
-  - 换 .mp4 或 .avi；确认输出目录可写
-  - OpenCV 不一定带 HEVC/H.264，程序会回退到 mp4v
+- STL/Geometry
+  - `sample_tilt_x / sample_tilt_y`: Sample tilt around X/Y axis
+  - `sample_tilt_new_z`: Rotation angle around sample normal direction after tilting
+  - `det_tilt_x`: Detector tilt angle around X axis
+  - Encoding (TRI): Sample `0 -123`, Detector `-125 -125`, Environment `-122/-127`
 
-- Nebula 可执行路径或材料文件不存在
-  - 检查 `nebula_gpu_path`、`.mat` 路径；Linux 下需 `chmod +x`
+- PRI/Electron beam
+  - `pixel_size`: Pixel size (nm)
+  - `energy`: Energy (eV/keV depending on implementation)
+  - `epx`: Electrons per pixel (Poisson can be enabled)
+  - `roi_x_min/x_max/y_min/y_max`: ROI region (pixel range)
+  - `d_zmin / d_zmax`: Detector z range from TRI, used for beam z position calculation
+
+- Executable/Materials
+  - `nebula_gpu_path`: Nebula executable path (Linux example: `source/nebula_gpu`)
+  - `mat_paths_list`: List of material `.mat` files (concatenated with spaces)
+  - Command template: `"nebula_gpu" "tri" "pri" material1.mat material2.mat > output.det`
+
+- Images to Video GUI (images_to_video_gui.py)
+  - Support multiple image selection/append, sort by name/date
+  - Frame rate, resolution (including custom), aspect ratio (maintain/stretch), quality (high/standard/compressed)
+  - Encoder fallback: HEVC(hev1) → H.264(avc1) → mp4v; automatically corrects to even width/height
+
+---
+
+## III. Common Questions (FAQ)
+
+- Video generation fails or file unusable
+  - Try .mp4 or .avi; confirm output directory is writable
+  - OpenCV may not include HEVC/H.264, program will fallback to mp4v
+
+- Nebula executable path or material file does not exist
+  - Check `nebula_gpu_path`, `.mat` paths; on Linux need `chmod +x`
 
 - `running: 0 | detected: 0`
-  - 几何/PRI/材料设置可能存在问题；脚本会终止并提示优化输入
+  - Geometry/PRI/material settings may have issues; script will terminate and prompt to optimize input
 
-- 超大分辨率或超长序列导出视频耗时长
-  - 降低分辨率/帧率或选择“标准/压缩”；优先使用 mp4v 提升兼容性
+- Very high resolution or very long sequence video export takes too long
+  - Reduce resolution/frame rate or select "standard/compressed"; prioritize mp4v for better compatibility
 
 ---
 
-## 四、建议的开发流程
+## IV. Recommended Development Workflow
 
-- 安装依赖
+- Install dependencies
 ```bash
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # 可选
+pip install -r requirements-dev.txt  # optional
 ```
 
-- 统一风格与检查
+- Unified style and checks
 ```bash
 make format
 make lint
 ```
 
-- 快速运行
+- Quick run
 ```bash
-make gui       # 图像转视频 GUI
-make sem       # SEM 分析脚本
-make sim       # 自动仿真脚本
+make gui       # Images to Video GUI
+make sem       # SEM analysis script
+make sim       # Automatic simulation script
 ```
