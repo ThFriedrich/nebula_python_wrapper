@@ -1,84 +1,84 @@
-# Nebula Python Wrapper 更新日志
+# Nebula Python Wrapper Changelog
 
-本文档记录了 Nebula Python Wrapper 项目的所有重要变更。
+This document records all important changes to the Nebula Python Wrapper project.
 
-## [未发布]
+## [Unreleased]
 
-### 新增
-- 计划添加更多材料属性支持
-- 计划优化大型数据集的处理性能
-- 计划增加实时预览功能
+### Added
+- Plan to add more material property support
+- Plan to optimize processing performance for large datasets
+- Plan to add real-time preview functionality
 
 ## [1.0.0] - 2025-09-01
 
-### 新增
-- 完整的图形用户界面 (nebula_gui.py)
-- 支持电子束和离子束成像模式
-- 体素到网格转换功能 (voxel_to_mesh.py)
-- 圆柱体网格生成和旋转功能
-- 详细的项目文档和用户指南
+### Added
+- Complete graphical user interface (nebula_gui.py)
+- Support for electron beam and ion beam imaging modes
+- Voxel to mesh conversion functionality (voxel_to_mesh.py)
+- Cylinder mesh generation and rotation functionality
+- Detailed project documentation and user guide
 
-### 优化
-- 改进了 SEM 电子束数据生成的性能
-- 优化了内存使用，支持处理更大的数据集
-- 增强了用户界面的响应性和稳定性
+### Optimized
+- Improved performance of SEM electron beam data generation
+- Optimized memory usage to support processing larger datasets
+- Enhanced user interface responsiveness and stability
 
-### 修复
-- 修复了旋转变换中的坐标计算问题
-- 解决了大文件处理时的内存泄漏问题
-- 修复了多线程处理中的竞态条件
+### Fixed
+- Fixed coordinate calculation issues in rotation transforms
+- Resolved memory leak issues when processing large files
+- Fixed race conditions in multithreaded processing
 
 ## [0.9.0] - 2025-08-29
 
-### 新增
-- 添加了 STL 到 TRI 格式的转换功能
-- 实现了基本的 SEM 电子束数据生成
-- 添加了样品和探测器倾转角设置
-- 创建了命令行工具接口
+### Added
+- Added STL to TRI format conversion functionality
+- Implemented basic SEM electron beam data generation
+- Added sample and detector tilt angle settings
+- Created command-line tool interface
 
-### 优化
-- 改进了文件读写性能
-- 优化了三角形网格处理算法
+### Optimized
+- Improved file read/write performance
+- Optimized triangle mesh processing algorithms
 
-### 修复
-- 修复了文件路径处理中的错误
-- 解决了特殊字符在文件名中的问题
+### Fixed
+- Fixed errors in file path handling
+- Resolved issues with special characters in filenames
 
 ## [0.8.0] - 2025-08-23
 
-### 新增
-- 初始项目结构设置
-- 基本的 Nebula GPU 封装功能
-- 简单的命令行界面
-- 项目文档框架
+### Added
+- Initial project structure setup
+- Basic Nebula GPU wrapper functionality
+- Simple command-line interface
+- Project documentation framework
 
-### 优化
-- 建立了模块化的代码结构
-- 实现了基本的错误处理机制
+### Optimized
+- Established modular code structure
+- Implemented basic error handling mechanisms
 
 ## [0.7.0] - 2025-07-25
 
-### 新增
-- 概念验证实现
-- 基础 SEM 分析功能
-- 简单的数据可视化工具
+### Added
+- Proof of concept implementation
+- Basic SEM analysis functionality
+- Simple data visualization tools
 
-## 开发计划
+## Development Roadmap
 
-### 短期计划 (1-3个月)
-- 增加更多的单元测试和集成测试
-- 改进文档和示例
-- 优化大型数据集的处理性能
-- 添加更多预设材料属性
+### Short-term Plans (1-3 months)
+- Add more unit tests and integration tests
+- Improve documentation and examples
+- Optimize processing performance for large datasets
+- Add more preset material properties
 
-### 中期计划 (3-6个月)
-- 实现实时预览功能
-- 添加更多几何形状的网格生成工具
-- 支持更多文件格式的导入和导出
-- 改进用户界面的易用性
+### Mid-term Plans (3-6 months)
+- Implement real-time preview functionality
+- Add more geometric shape mesh generation tools
+- Support more file format import and export
+- Improve user interface usability
 
-### 长期计划 (6-12个月)
-- 集成机器学习模型以加速模拟
-- 支持分布式计算
-- 开发 Web 界面
-- 与其他模拟工具集成
+### Long-term Plans (6-12 months)
+- Integrate machine learning models to accelerate simulation
+- Support distributed computing
+- Develop web interface
+- Integration with other simulation tools

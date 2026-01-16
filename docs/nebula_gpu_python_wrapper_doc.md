@@ -1,30 +1,30 @@
-# Nebula GPU Python 封装文档
+# Nebula GPU Python Wrapper Documentation
 
-## 概述
+## Overview
 
-本文档记录了如何将 `nebula_gpu`（一个用 C++ 和 CUDA 编写的程序）封装为 Python 模块，以便通过 Python 调用。
+This document describes how to wrap `nebula_gpu` (a program written in C++ and CUDA) as a Python module for calling from Python.
 
-## 封装步骤
+## Wrapping Steps
 
-1. **创建 Python 模块**：
-   - 编写了一个 Python 脚本 `nebula_wrapper.py`，封装了对 `nebula_gpu` 的调用。
-   - 脚本位于 `/home/chenguisen/AISI/nebula/nebula/nebula_wrapper.py`。
+1. **Create Python Module**:
+   - Wrote a Python script `nebula_wrapper.py` that wraps calls to `nebula_gpu`.
+   - Script located at `/home/chenguisen/AISI/nebula/nebula/nebula_wrapper.py`.
 
-2. **功能实现**：
-   - 封装了命令行参数 `sem.tri`、`sem.pri`、`silicon.mat`、`pmma.mat` 为 Python 函数的输入。
-   - 支持将输出重定向到文件或直接返回给 Python。
+2. **Functionality Implementation**:
+   - Wrapped command-line arguments `sem.tri`, `sem.pri`, `silicon.mat`, `pmma.mat` as inputs to Python functions.
+   - Supports redirecting output to a file or returning directly to Python.
 
-3. **文件检查**：
-   - 在调用 `nebula_gpu` 前，会检查输入文件是否存在。
+3. **File Validation**:
+   - Checks if input files exist before calling `nebula_gpu`.
 
-## 使用方法
+## Usage
 
-### 安装依赖
-确保系统中已安装 Python 3 和 `subprocess` 模块（Python 标准库自带）。
+### Install Dependencies
+Ensure Python 3 and the `subprocess` module (included in Python standard library) are installed on the system.
 
-### 调用示例
+### Call Examples
 
-1. **保存输出到文件**：
+1. **Save output to file**:
    ```python
    from nebula_wrapper import run_nebula_gpu
 
@@ -37,7 +37,7 @@
    )
    ```
 
-2. **直接获取输出内容**：
+2. **Get output content directly**:
    ```python
    from nebula_wrapper import run_nebula_gpu
 
@@ -50,26 +50,26 @@
    print(output)
    ```
 
-## 注意事项
+## Notes
 
-1. **文件路径**：
-   - 确保输入文件的路径正确。
-   - `nebula_gpu` 的可执行文件路径默认为 `build/bin/nebula_gpu`，如需修改，请更新脚本中的路径。
+1. **File Paths**:
+   - Ensure input file paths are correct.
+   - The `nebula_gpu` executable path defaults to `build/bin/nebula_gpu`, if modification is needed, update the path in the script.
 
-2. **依赖和环境**：
-   - 如果 `nebula_gpu` 需要其他依赖或环境变量，请在调用前设置。
+2. **Dependencies and Environment**:
+   - If `nebula_gpu` requires other dependencies or environment variables, set them before calling.
 
-3. **错误处理**：
-   - 如果输入文件不存在，会抛出 `FileNotFoundError` 异常。
-   - 如果 `nebula_gpu` 执行失败，会抛出 `subprocess.CalledProcessError` 异常。
+3. **Error Handling**:
+   - If input file does not exist, a `FileNotFoundError` exception will be raised.
+   - If `nebula_gpu` execution fails, a `subprocess.CalledProcessError` exception will be raised.
 
-## 后续优化建议
+## Future Optimization Suggestions
 
-1. **日志记录**：
-   - 可以添加日志功能，记录每次调用的参数和执行结果。
+1. **Logging**:
+   - Can add logging functionality to record parameters and execution results for each call.
 
-2. **性能优化**：
-   - 如果需要频繁调用，可以考虑使用多线程或多进程优化性能。
+2. **Performance Optimization**:
+   - For frequent calls, consider using multithreading or multiprocessing to optimize performance.
 
-3. **扩展功能**：
-   - 支持更多参数或动态配置 `nebula_gpu` 的选项。
+3. **Extended Functionality**:
+   - Support more parameters or dynamically configure `nebula_gpu` options.

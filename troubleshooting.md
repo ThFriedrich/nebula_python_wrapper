@@ -1,18 +1,18 @@
-# cstool 模块导入问题解决文档
+# cstool Module Import Issue Resolution
 
-## 问题描述
+## Problem Description
 
-在尝试运行 `cstool` 命令时，遇到以下错误：
+When attempting to run the `cstool` command, the following error occurred:
 
 ```
 ModuleNotFoundError: No module named 'cstool.apps'
 ```
 
-这个错误表明 Python 无法找到 `cstool.apps` 模块，这是由于包的目录结构与 `setup.py` 中定义的包结构不匹配导致的。
+This error indicates that Python cannot find the `cstool.apps` module, which is due to a mismatch between the package directory structure and the package structure defined in `setup.py`.
 
-## 问题分析
+## Problem Analysis
 
-1. 在 `setup.py` 中，`cstool.apps` 被定义为从 `apps` 目录导入：
+1. In `setup.py`, `cstool.apps` is defined to be imported from the `apps` directory:
    ```python
    package_dir = {
        'cstool': 'cstool',
@@ -20,15 +20,15 @@ ModuleNotFoundError: No module named 'cstool.apps'
    }
    ```
 
-2. 但实际的目录结构中，`apps` 目录与 `cstool` 目录是平级的，而不是在 `cstool` 目录内。
+2. However, in the actual directory structure, the `apps` directory is at the same level as the `cstool` directory, not inside the `cstool` directory.
 
-3. 这导致 Python 在导入 `cstool.apps` 时无法找到正确的模块路径。
+3. This causes Python to be unable to find the correct module path when importing `cstool.apps`.
 
-## 解决方案
+## Solution
 
-我们采取了以下步骤来解决这个问题：
+We took the following steps to resolve this issue:
 
-1. 修改 `setup.py` 中的 `package_dir` 配置，将 `'cstool.apps'` 映射到 `'cstool/apps'`：
+1. Modified the `package_dir` configuration in `setup.py` to map `'cstool.apps'` to `'cstool/apps'`:
    ```python
    package_dir = {
        'cstool': 'cstool',
@@ -36,29 +36,29 @@ ModuleNotFoundError: No module named 'cstool.apps'
    }
    ```
 
-2. 创建正确的目录结构，将 `apps` 目录下的文件复制到 `cstool/apps` 目录下：
+2. Created the correct directory structure by copying files from the `apps` directory to the `cstool/apps` directory:
    ```bash
    mkdir -p /home/chenguisen/AISI/nebula/cstool/cstool/apps
    cp /home/chenguisen/AISI/nebula/cstool/apps/__init__.py /home/chenguisen/AISI/nebula/cstool/apps/cstool.py /home/chenguisen/AISI/nebula/cstool/cstool/apps/
    ```
 
-3. 重新安装 `cstool` 包：
+3. Reinstalled the `cstool` package:
    ```bash
    cd /home/chenguisen/AISI/nebula && pip install -e ./cstool
    ```
 
-## 验证
+## Verification
 
-修复后，`cstool --help` 命令可以正常运行，输出帮助信息，表明问题已解决。
+After the fix, the `cstool --help` command runs normally and outputs help information, indicating that the problem has been resolved.
 
-## 建议
+## Recommendations
 
-为了避免类似问题，建议在未来的开发中：
+To avoid similar issues in future development, it is recommended to:
 
-1. 确保包的目录结构与 `setup.py` 中定义的包结构一致
-2. 使用标准的 Python 包结构，将子包放在父包目录下
-3. 在修改包结构时，同步更新 `setup.py` 中的配置
+1. Ensure that the package directory structure is consistent with the package structure defined in `setup.py`
+2. Use standard Python package structure, placing subpackages inside the parent package directory
+3. When modifying package structure, synchronously update the configuration in `setup.py`
 
-## 日期
+## Date
 
-修复日期：2025年8月12日
+Fixed: August 12, 2025

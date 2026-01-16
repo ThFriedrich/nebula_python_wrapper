@@ -1,12 +1,12 @@
 """
-图像转视频工具 (带GUI界面)
+Images to Video Tool (with GUI interface)
 
-功能:
-1. 通过GUI界面选择多张图片（支持从不同文件夹选择）
-2. 设置输出视频参数（分辨率、帧率、质量等）
-3. 支持高分辨率视频生成（最高支持4K/8K）
-4. 支持多种视频质量选项
-5. 生成高质量视频文件
+Features:
+1. Select multiple images through GUI interface（支持from不同filefolderSelect）
+2. Setoutputvideoparameters（resolution、frame rate、quality etc）
+3. 支持高resolutionvideogeneration（Maximum support4K/8K）
+4. Supports multiplevideoquality options
+5. generationhigh qualityvideofile
 
 依赖:
 - PyQt6
@@ -26,7 +26,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 
 
 class VideoGeneratorThread(QThread):
-    """视频生成线程"""
+    """videogeneration线程"""
     progress_updated = pyqtSignal(int)
     finished = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
@@ -40,41 +40,41 @@ class VideoGeneratorThread(QThread):
         self.fps = fps
         self.size = size
         self.keep_aspect = keep_aspect
-        self.quality = quality  # 0=高质量, 1=标准, 2=压缩
+        self.quality = quality  # 0=high quality, 1=标准, 2=压缩
         self._is_running = True
 
     def run(self):
         try:
-            # 确保输出目录存在
+            # 确保outputdirectory存on
             output_dir = Path(self.output_path).parent
             if not output_dir.exists():
                 output_dir.mkdir(parents=True, exist_ok=True)
 
-            # 获取第一张图片的尺寸(如果未指定尺寸)
+            # Get第一张图片of尺寸(if未指定尺寸)
             if self.size is None:
                 first_image = cv2.imread(self.image_paths[0])
                 if first_image is None:
-                    raise RuntimeError(f"无法读取第一张图片: {self.image_paths[0]}")
+                    raise RuntimeError(f"无法Read第一张图片: {self.image_paths[0]}")
                 h, w = first_image.shape[:2]
                 self.size = (w, h)
 
-            # 创建视频写入器（尝试使用高质量编码器）
+            # Createvideo写入器（尝试使用high quality编码器）
             # 尝试使用H.265/HEVC编码器（更高压缩率和质量）
             fourcc = cv2.VideoWriter_fourcc(*'hev1')
             writer = cv2.VideoWriter(self.output_path, fourcc, self.fps, self.size)
             
-            # 如果HEVC不可用，尝试H.264
+            # ifHEVC不可用，尝试H.264
             if not writer.isOpened():
                 fourcc = cv2.VideoWriter_fourcc(*'avc1')  # H.264编码
                 writer = cv2.VideoWriter(self.output_path, fourcc, self.fps, self.size)
                 
-                # 如果H.264不可用，回退到mp4v
+                # ifH.264不可用，回退tomp4v
                 if not writer.isOpened():
                     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                     writer = cv2.VideoWriter(self.output_path, fourcc, self.fps, self.size)
                     
                     if not writer.isOpened():
-                        raise RuntimeError("无法创建视频文件，请检查参数和路径")
+                        raise RuntimeError("无法Createvideofile，请检查parameters和path")
 
             # 处理每张图片
             total = len(self.image_paths)
@@ -84,15 +84,15 @@ class VideoGeneratorThread(QThread):
 
                 frame = cv2.imread(img_path)
                 if frame is None:
-                    raise RuntimeError(f"无法读取图片: {img_path}")
+                    raise RuntimeError(f"无法Read图片: {img_path}")
 
                 # 调整尺寸
                 if frame.shape[1] != self.size[0] or frame.shape[0] != self.size[1]:
-                    # 选择插值方法（基于质量设置）
-                    if self.quality == 0:  # 高质量
+                    # Select插值方法（基于质量Set）
+                    if self.quality == 0:  # high quality
                         interpolation = cv2.INTER_CUBIC  # 立方插值，质量更高
                     elif self.quality == 1:  # 标准
-                        interpolation = cv2.INTER_LINEAR  # 线性插值，平衡速度和质量
+                        interpolation = cv2.INTER_LINEAR  # 线性插值，平衡速degrees和质量
                     else:  # 压缩
                         interpolation = cv2.INTER_AREA  # 区域插值，适合缩小图像
                     
@@ -131,46 +131,46 @@ class ImageToVideoApp(QMainWindow):
     """主应用程序窗口"""
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("图像转视频工具")
-        self.setGeometry(100, 100, 600, 500)  # 增加窗口高度
+        self.setWindowTitle("Images to Video Tool")
+        self.setGeometry(100, 100, 600, 500)  # 增加窗口高degrees
         self._init_ui()
         self.worker_thread = None
-        self.image_paths = []  # 初始化图片路径列表
+        self.image_paths = []  # Initialize图片path列表
 
     def _init_ui(self):
-        """初始化UI"""
+        """InitializeUI"""
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         layout = QVBoxLayout()
         main_widget.setLayout(layout)
 
-        # 图片选择区域
+        # 图片Select区域
         image_group = QWidget()
         image_layout = QVBoxLayout()
         image_group.setLayout(image_layout)
 
-        self.image_list_label = QLabel("已选择 0 张图片")
+        self.image_list_label = QLabel("已Select 0 张图片")
         image_layout.addWidget(self.image_list_label)
 
-        # 图片选择按钮组
+        # 图片Select按钮组
         btn_layout = QHBoxLayout()
         
-        btn_select_images = QPushButton("选择图片")
-        btn_select_images.setToolTip("从单个文件夹选择多张图片")
+        btn_select_images = QPushButton("Select图片")
+        btn_select_images.setToolTip("from单个filefolderSelect多张图片")
         btn_select_images.clicked.connect(self._select_images)
         btn_layout.addWidget(btn_select_images)
         
-        btn_add_folder = QPushButton("添加文件夹")
-        btn_add_folder.setToolTip("添加整个文件夹中的图片")
+        btn_add_folder = QPushButton("添加filefolder")
+        btn_add_folder.setToolTip("添加整个filefolder中of图片")
         btn_add_folder.clicked.connect(self._add_folder_images)
         btn_layout.addWidget(btn_add_folder)
         
         btn_add_images = QPushButton("添加更多图片")
-        btn_add_images.setToolTip("添加更多图片到当前选择")
+        btn_add_images.setToolTip("添加更多图片to当前Select")
         btn_add_images.clicked.connect(self._add_more_images)
         btn_layout.addWidget(btn_add_images)
         
-        btn_clear_images = QPushButton("清除选择")
+        btn_clear_images = QPushButton("清除Select")
         btn_clear_images.setToolTip("清除所有已选图片")
         btn_clear_images.clicked.connect(self._clear_images)
         btn_layout.addWidget(btn_clear_images)
@@ -179,7 +179,7 @@ class ImageToVideoApp(QMainWindow):
         
         # 排序按钮
         sort_layout = QHBoxLayout()
-        btn_sort_name = QPushButton("按名称排序")
+        btn_sort_name = QPushButton("按name称排序")
         btn_sort_name.clicked.connect(self._sort_by_name)
         sort_layout.addWidget(btn_sort_name)
         
@@ -189,36 +189,36 @@ class ImageToVideoApp(QMainWindow):
         
         image_layout.addLayout(sort_layout)
 
-        # 添加富文本框显示图片路径
+        # 添加富文本框显示图片path
         self.image_paths_text = QTextEdit()
         self.image_paths_text.setReadOnly(True)
-        self.image_paths_text.setPlaceholderText("选择的图片路径将显示在这里")
+        self.image_paths_text.setPlaceholderText("Selectof图片pathConvert显示on这里")
         image_layout.addWidget(self.image_paths_text)
 
         layout.addWidget(image_group)
 
-        # 输出设置区域
+        # outputSet区域
         output_group = QWidget()
         output_layout = QVBoxLayout()
         output_group.setLayout(output_layout)
 
-        # 输出路径
+        # outputpath
         output_path_layout = QHBoxLayout()
         self.output_path_edit = QLineEdit()
-        self.output_path_edit.setPlaceholderText("输出视频路径")
+        self.output_path_edit.setPlaceholderText("outputvideopath")
         output_path_layout.addWidget(self.output_path_edit)
 
-        btn_select_output = QPushButton("选择")
+        btn_select_output = QPushButton("Select")
         btn_select_output.clicked.connect(self._select_output_path)
         output_path_layout.addWidget(btn_select_output)
         output_layout.addLayout(output_path_layout)
 
-        # 视频参数
+        # videoparameters
         param_layout = QHBoxLayout()
 
-        # 帧率
+        # frame rate
         fps_layout = QVBoxLayout()
-        fps_layout.addWidget(QLabel("帧率 (FPS)"))
+        fps_layout.addWidget(QLabel("frame rate (FPS)"))
         self.fps_spin = QSpinBox()
         self.fps_spin.setRange(1, 120)
         self.fps_spin.setValue(30)
@@ -227,7 +227,7 @@ class ImageToVideoApp(QMainWindow):
 
         # 尺寸
         size_layout = QVBoxLayout()
-        size_layout.addWidget(QLabel("视频尺寸"))
+        size_layout.addWidget(QLabel("video尺寸"))
         self.size_combo = QComboBox()
         self.size_combo.addItems([
             "自动 (使用第一张图片尺寸)", 
@@ -241,7 +241,7 @@ class ImageToVideoApp(QMainWindow):
         self.size_combo.currentIndexChanged.connect(self._on_size_changed)
         size_layout.addWidget(self.size_combo)
         
-        # 自定义尺寸输入
+        # 自定义尺寸input
         self.custom_size_widget = QWidget()
         self.custom_size_layout = QHBoxLayout(self.custom_size_widget)
         self.width_edit = QSpinBox()
@@ -268,62 +268,62 @@ class ImageToVideoApp(QMainWindow):
         aspect_layout.addWidget(self.aspect_combo)
         param_layout.addLayout(aspect_layout)
         
-        # 视频质量
+        # video质量
         quality_layout = QVBoxLayout()
-        quality_layout.addWidget(QLabel("视频质量"))
+        quality_layout.addWidget(QLabel("video质量"))
         self.quality_combo = QComboBox()
-        self.quality_combo.addItems(["高质量", "标准", "压缩"])
-        self.quality_combo.setToolTip("高质量：更清晰但文件更大\n标准：平衡质量和文件大小\n压缩：文件小但质量较低")
+        self.quality_combo.addItems(["high quality", "标准", "压缩"])
+        self.quality_combo.setToolTip("high quality：更清晰但file更大\n标准：平衡质量和file大小\n压缩：file小但质量较低")
         quality_layout.addWidget(self.quality_combo)
         param_layout.addLayout(quality_layout)
 
         output_layout.addLayout(param_layout)
         layout.addWidget(output_group)
 
-        # 进度条
+        # 进degrees条
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         layout.addWidget(self.progress_bar)
 
-        # 生成按钮
-        btn_generate = QPushButton("生成视频")
+        # generation按钮
+        btn_generate = QPushButton("generationvideo")
         btn_generate.clicked.connect(self._generate_video)
         layout.addWidget(btn_generate)
 
     def _select_images(self):
-        """选择图片（替换当前选择）"""
+        """Select图片（替换当前Select）"""
         files, _ = QFileDialog.getOpenFileNames(
-            self, "选择图片", "", 
-            "图片文件 (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;所有文件 (*)")
+            self, "Select图片", "", 
+            "图片file (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;所有file (*)")
         
         if files:
             self.image_paths = files
             self._update_image_list()
     
     def _add_more_images(self):
-        """添加更多图片（保留当前选择）"""
+        """添加更多图片（保留当前Select）"""
         files, _ = QFileDialog.getOpenFileNames(
             self, "添加更多图片", "", 
-            "图片文件 (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;所有文件 (*)")
+            "图片file (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;所有file (*)")
         
         if files:
             self.image_paths.extend(files)
             self._update_image_list()
     
     def _add_folder_images(self):
-        """添加整个文件夹的图片"""
-        folder = QFileDialog.getExistingDirectory(self, "选择图片文件夹")
+        """添加整个filefolderof图片"""
+        folder = QFileDialog.getExistingDirectory(self, "Select图片filefolder")
         if folder:
-            # 支持的图片扩展名
+            # 支持of图片扩展name
             extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.tif', '.tiff']
             
-            # 获取文件夹中所有图片
+            # Getfilefolder中所有图片
             new_images = []
             for ext in extensions:
                 new_images.extend(list(Path(folder).glob(f"*{ext}")))
                 new_images.extend(list(Path(folder).glob(f"*{ext.upper()}")))
             
-            # 转换为字符串路径并添加到当前列表
+            # 转换为字符串path并添加to当前列表
             if new_images:
                 new_image_paths = [str(img) for img in new_images]
                 self.image_paths.extend(new_image_paths)
@@ -335,13 +335,13 @@ class ImageToVideoApp(QMainWindow):
         self._update_image_list()
     
     def _sort_by_name(self):
-        """按文件名排序图片"""
+        """按filename排序图片"""
         if self.image_paths:
             self.image_paths.sort(key=lambda x: Path(x).name)
             self._update_image_list()
     
     def _sort_by_date(self):
-        """按文件修改日期排序图片"""
+        """按file修改日期排序图片"""
         if self.image_paths:
             self.image_paths.sort(key=lambda x: os.path.getmtime(x))
             self._update_image_list()
@@ -349,28 +349,28 @@ class ImageToVideoApp(QMainWindow):
     def _update_image_list(self):
         """更新图片列表显示"""
         count = len(self.image_paths)
-        self.image_list_label.setText(f"已选择 {count} 张图片")
+        self.image_list_label.setText(f"已Select {count} 张图片")
         self.image_paths_text.setPlainText('\n'.join(self.image_paths))
 
     def _select_output_path(self):
-        """选择输出路径"""
+        """Selectoutputpath"""
         dialog = QFileDialog()
         options = dialog.options()
         file, _ = QFileDialog.getSaveFileName(
-            self, "保存视频", "", 
-            "MP4视频 (*.mp4);;AVI视频 (*.avi);;所有文件 (*)",
+            self, "保存video", "", 
+            "MP4video (*.mp4);;AVIvideo (*.avi);;所有file (*)",
             options=options)
         
         if file:
             self.output_path_edit.setText(file)
 
     def _on_size_changed(self, index):
-        """处理分辨率选择变化"""
+        """处理resolutionSelect变化"""
         is_custom = self.size_combo.currentText() == "自定义..."
         self.custom_size_widget.setVisible(is_custom)
         
     def _get_video_size(self) -> Optional[Tuple[int, int]]:
-        """获取视频尺寸"""
+        """Getvideo尺寸"""
         text = self.size_combo.currentText()
         if text.startswith("自动"):
             return None
@@ -381,7 +381,7 @@ class ImageToVideoApp(QMainWindow):
                 w = self.width_edit.value()
                 h = self.height_edit.value()
             else:
-                # 从预设中提取尺寸
+                # from预设中提取尺寸
                 size_part = text.split(" ")[0]  # 提取 "1920x1080" 部分
                 w, h = map(int, size_part.split("x"))
             
@@ -394,34 +394,34 @@ class ImageToVideoApp(QMainWindow):
             return None
 
     def _generate_video(self):
-        """生成视频"""
+        """generationvideo"""
         if not self.image_paths:
-            QMessageBox.warning(self, "警告", "请先选择图片")
+            QMessageBox.warning(self, "警告", "请先Select图片")
             return
         
         output_path = self.output_path_edit.text().strip()
         if not output_path:
-            QMessageBox.warning(self, "警告", "请指定输出视频路径")
+            QMessageBox.warning(self, "警告", "请指定outputvideopath")
             return
             
         # 确认图片数量
         if len(self.image_paths) > 100:
             reply = QMessageBox.question(
                 self, "确认", 
-                f"您选择了 {len(self.image_paths)} 张图片，处理可能需要一些时间。是否继续？",
+                f"您Select了 {len(self.image_paths)} 张图片，处理可能需要一些时间。是否继续？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.No:
                 return
         
         try:
-            # 获取参数
+            # Getparameters
             fps = self.fps_spin.value()
             size = self._get_video_size()
             keep_aspect = self.aspect_combo.currentIndex() == 0
-            quality = self.quality_combo.currentIndex()  # 0=高质量, 1=标准, 2=压缩
+            quality = self.quality_combo.currentIndex()  # 0=high quality, 1=标准, 2=压缩
             
-            # 创建并启动工作线程
+            # Create并启动工作线程
             self.worker_thread = VideoGeneratorThread(
                 self.image_paths, output_path, fps, size, keep_aspect, quality)
             
@@ -435,24 +435,24 @@ class ImageToVideoApp(QMainWindow):
             # 禁用UI控件
             self._set_ui_enabled(False)
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"初始化失败: {str(e)}")
+            QMessageBox.critical(self, "错误", f"Initialize失败: {str(e)}")
 
     def _update_progress(self, value: int):
-        """更新进度条"""
+        """更新进degrees条"""
         self.progress_bar.setValue(value)
 
     def _generation_finished(self, output_path: str):
-        """视频生成完成"""
+        """videogeneration完成"""
         self._set_ui_enabled(True)
-        QMessageBox.information(self, "完成", f"视频已成功生成:\n{output_path}")
+        QMessageBox.information(self, "完成", f"video已成功generation:\n{output_path}")
 
     def _generation_error(self, error_msg: str):
-        """视频生成错误"""
+        """videogeneration错误"""
         self._set_ui_enabled(True)
-        QMessageBox.critical(self, "错误", f"生成视频失败:\n{error_msg}")
+        QMessageBox.critical(self, "错误", f"generationvideo失败:\n{error_msg}")
 
     def _set_ui_enabled(self, enabled: bool):
-        """设置UI控件的启用状态"""
+        """SetUI控件ofEnable状态"""
         for widget in self.findChildren(QWidget):
             if isinstance(widget, (QPushButton, QComboBox, QSpinBox, QLineEdit)):
                 widget.setEnabled(enabled)

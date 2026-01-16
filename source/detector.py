@@ -1,7 +1,7 @@
 import math
 
 
-# 36边形探测器
+# 36-sided polygon detector
 detector_str =f"""
     -125 -125 0.000000 0.000000 34.000000 17.000000 0.000000 34.000000 16.741732 2.952019 34.000000
     -125 -125 0.000000 0.000000 34.000000 16.741732 2.952019 34.000000 15.974775 5.814342 34.000000
@@ -57,7 +57,7 @@ def read_detector_str(detector_str, det_tilt_x=0):
                 x2, y2, z2 = float(parts[8]), float(parts[9]), float(parts[10])
                 #print(x, y, z, x1, y1, z1, x2, y2, z2)
 
-                 # 旋转
+                 # Rotation
                 cos_tx = cos_ty = 1.0
                 sin_tx = sin_ty = 0.0
                 

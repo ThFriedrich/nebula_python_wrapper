@@ -5,36 +5,36 @@ import matplotlib.pyplot as plot
 import pathlib
 import torch
 
-# 导入现有模块的功能
+# Import functionality from existing modules
 from parameters import tri_parameters, pri_parameters
 from run_nebula import nebula_gpu
 from save_parameters import add_frame_to_parameters, save_parameters
 
 import numpy as np
 
-def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
+def run_simulate(nebula_paras, tri_paras, pri_paras, mat_paths_list):
     simu_result = None
     sample_tilt_x = tri_paras['sample_tilt_x']
-    # 将模拟上的逻辑转换到实验上，使得参数设置与实验一致
+    # Convertsimulate上of逻辑转换to实验上，makingparametersSet与实验一致
     if 'fib' in tri_paras['beam_type'].lower():
-        # FIB离子束成像，参数的设定
+        # FIBIon beam imaging，parameterssettings
         tri_paras['sample_tilt_x'] = 55 - sample_tilt_x
         tri_paras['det_tilt_x'] = 0
         pass
     elif 'sem' in tri_paras['beam_type'].lower():
-        # SEM电子束成像，探测器默认76.8,这里的倾转角在不同设备上可能不同
+        # SEMElectron beam imaging，Detector default76.8,tilt angle here may vary on different devices
         tri_paras['det_tilt_x'] = 76.8
 
 
-    # 获取旋转角度. 如果stop = step，则只旋转一次
+    # Getrotation angledegrees. ifstop = step，then onlyRotationonce
     rotate_angle_start = tri_paras['rotate_angle_start']
     rotate_angle_stop = tri_paras['rotate_angle_stop']
     rotate_angle_step = tri_paras['rotate_angle_step']
     rotate_angle_list = np.arange(rotate_angle_start, rotate_angle_stop, rotate_angle_step)
-    # 遍历旋转角度
+    # Iterate throughrotation angledegrees
     for rotate_angle in rotate_angle_list:
         print(f"rotate_angle: {rotate_angle}",'\n\n')
-        # 生成.tri文件
+        # generation.trifile
         stl_path = pathlib.Path(tri_paras['stl_path'])
         mesh_path = pathlib.Path(tri_paras['mesh_path'])
         TRI = tri_parameters(
@@ -47,14 +47,14 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
         )
         v, d_zmin, d_zmax, tri_file_path, R = TRI.run()
         print(f"R: {R}")
-        print(f".tri 文件已生成，路径: {tri_file_path}")
+        print(f".tri file已generation，path: {tri_file_path}")
 
         if rotate_angle == rotate_angle_start:
 
             roi_array = pri_paras['roi_array']
             print(f"设定 roi_array: {roi_array}")
             if roi_array is None:
-                # 计算像素范围
+                # 计算pixels范围
                 x_min = int(torch.floor(torch.min(v[:, 0])).item())
                 x_max = int(torch.ceil(torch.max(v[:, 0])).item())   
                 y_min = int(torch.floor(torch.min(v[:, 1])).item())
@@ -63,13 +63,13 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
                 print(f"roi_array: {roi_array}")
 
             PRI = pri_parameters(
-                pri_dir=pri_paras['pri_dir'],  # 输出 .pri 文件的路径
-                pixel_size=pri_paras['pixel_size'],  # 像素大小，单位为nm
+                pri_dir=pri_paras['pri_dir'],  # output .pri fileofpath
+                pixel_size=pri_paras['pixel_size'],  # pixels大小，单位为nm
                 energy=pri_paras['energy'],
-                epx=pri_paras['epx'],       # 每像素电子数
-                sigma=pri_paras['sigma'],    # 高斯模糊参数，默认为1.0
+                epx=pri_paras['epx'],       # 每pixels电子数
+                sigma=pri_paras['sigma'],    # 高斯模糊parameters，default1.0
                 poisson=pri_paras['poisson'],
-                roi_x_min=roi_array[0],  # 这里的roi设置也可以设置为模型的尺寸范围
+                roi_x_min=roi_array[0],  # 这里ofroiSet也可以Set为模型of尺寸范围
                 roi_x_max=roi_array[1],  
                 roi_y_min=roi_array[2],
                 roi_y_max=roi_array[3],
@@ -78,33 +78,33 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
             )
             pri_file_path = PRI.run()
             if pri_file_path is None:
-                raise ValueError("生成 .pri 文件失败，路径为 None")
+                raise ValueError("generation .pri file失败，path为 None")
             
-        print(f".pri 文件已生成，路径: {pri_file_path}")
+        print(f".pri file已generation，path: {pri_file_path}")
 
         print("tri_paras:", tri_paras)
         print("pri_paras:", pri_paras)
  
 
-        # 将mat_paths_list中的路径直接用空格分隔，不使用shlex.quote
+        # Convertmat_paths_list中ofpath直接用空格分隔，不使用shlex.quote
         mat_paths_quoted = " ".join(str(path) for path in mat_paths_list)
 
         nebula_path = nebula_paras['nebula_path']
         output_path = nebula_paras['output_path']
 
-        # 检查路径是否存在
+        # 检查path是否存on
         if not pathlib.Path(nebula_path).is_file():
-            raise FileNotFoundError(f"可执行文件 {nebula_path} 不存在")
+            raise FileNotFoundError(f"可执行file {nebula_path} 不存on")
         if not pathlib.Path(tri_file_path).exists():
-            raise FileNotFoundError(f"文件 {tri_file_path} 不存在")
+            raise FileNotFoundError(f"file {tri_file_path} 不存on")
         if not pathlib.Path(pri_file_path).exists():
-            raise FileNotFoundError(f"文件 {pri_file_path} 不存在")
+            raise FileNotFoundError(f"file {pri_file_path} 不存on")
 
 
 
         # 适配多平台，保持原有命令格式 "nebula_gpu sem.tri sem.pri silicon.mat pmma.mat > output.det"
         if platform.system() == "Windows":
-            # Windows 下使用 cmd /c 执行重定向
+            # Windows 下使用 cmd /c 执行重定to
             command = f'"{nebula_path}" "{tri_file_path}" "{pri_file_path}" {mat_paths_quoted} > "{output_path}"'
         else:
             # Linux/Mac 下使用相同格式
@@ -125,12 +125,12 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
             NEBULA.run()
         except Exception as e:
             print(f"[ERROR] 调用 nebula_gpu 时发生异常: {e}")
-            print(f"[提示] 尝试直接在终端中运行命令: {command}")
+            print(f"[提示] 尝试直接on终端中运行命令: {command}")
             raise
         #NEBULA.show_image(plot=False, save=True)
         print(f"图像已保存至: {image_path}")
 
-        # # 将 R 转换为 list 或其他可序列化的类型
+        # # Convert R 转换为 list 或其他可序列化of类型
         if hasattr(R, 'tolist'):
             R = R.tolist()
         if rotate_angle == rotate_angle_start:
@@ -144,8 +144,8 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
                 "frames": [
                     {
                     "file_path": str(image_path),
-                    "rotation": json.dumps(R),   #旋转
-                    "translation": json.dumps([0.0, 0.0, 0.0]) #平移
+                    "rotation": json.dumps(R),   #Rotation
+                    "translation": json.dumps([0.0, 0.0, 0.0]) #translation
                     },
                 ]
             }
@@ -158,10 +158,10 @@ def run_simulation(nebula_paras, tri_paras, pri_paras, mat_paths_list):
                 json.dumps([0.0, 0.0, 0.0])
             )
 
-    # 创建相机参数保存路径
+    # Create相机parameters保存path
     parameters_path = os.path.join(mesh_path, "camera_parameters.json")
     save_parameters(parameters, parameters_path)
-    print(f"相机参数已保存至: {parameters_path}")
+    print(f"相机parameters已保存至: {parameters_path}")
     #return write_result(energy, roi_array, R, image_path)
 
 
@@ -179,9 +179,9 @@ def write_result(energy, roi_array, R, image_path):
                 "z_size": "{{IonDepositionNode(4).result.parameters.rec_settings.Depth * 1.0e6}}",
 
                 "energy": energy,               # 能量, eV
-                "image_path": str(image_path),  # 保存图像的路径
-                "rotation": json.dumps(R),      #旋转
-                "translation": json.dumps([0.0, 0.0, 0.0]), #平移
+                "image_path": str(image_path),  # 保存图像ofpath
+                "rotation": json.dumps(R),      #Rotation
+                "translation": json.dumps([0.0, 0.0, 0.0]), #translation
                 "width": roi_array[1] - roi_array[0] + 1,  # 512
                 "height": roi_array[3] - roi_array[2] + 1,  # 512
                 "cx": (roi_array[1] - roi_array[0] + 1) / 2,  # 256.0

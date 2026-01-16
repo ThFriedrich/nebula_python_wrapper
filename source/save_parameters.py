@@ -1,18 +1,18 @@
 import json
 def add_frame_to_parameters(parameters, file_path, rotation, translation):
     """
-    向 parameters 字典中的 frames 列表添加新的帧数据。
+    to parameters in dictionary frames list add new frame data。
     
-    参数:
-        parameters (dict): 包含相机参数和帧数据的字典。
-        file_path (str): 新帧的图片路径。
-        rotation (list): 新帧的旋转参数 [rx, ry, rz]。
-        translation (list): 新帧的平移参数 [tx, ty, tz]。
+    parameters:
+        parameters (dict): containing cameraparameters和帧数据ofdictionary。
+        file_path (str): 新帧of图片path。
+        rotation (list): 新帧ofRotationparameters [rx, ry, rz]。
+        translation (list): 新帧oftranslationparameters [tx, ty, tz]。
     
-    返回:
-        dict: 更新后的 parameters 字典。
+    Returns:
+        dict: 更新后of parameters dictionary。
     """
-    # 确保 frames 键存在
+    # 确保 frames 键存on
     if "frames" not in parameters:
         parameters["frames"] = []
     
@@ -27,10 +27,10 @@ def add_frame_to_parameters(parameters, file_path, rotation, translation):
     return parameters
 def save_parameters(parameters, file_path):
     """
-    保存相机参数和帧数据到 JSON 文件。
+    保存相机parameters和帧数据to JSON file。
     
-    参数:
-        parameters (dict): 包含相机参数和帧数据的字典，格式如下：
+    parameters:
+        parameters (dict): containing cameraparameters和帧数据ofdictionary，格式如下：
             {
                 "camera": {
                     "width": int,
@@ -47,12 +47,12 @@ def save_parameters(parameters, file_path):
                     ...
                 ]
             }
-        file_path (str): 保存 JSON 文件的路径。
+        file_path (str): 保存 JSON fileofpath。
     """
     with open(file_path, 'w') as f:
         json.dump(parameters, f, indent=4)
 
-# 示例用法
+# Example usage
 if __name__ == "__main__":
     example_parameters = {
         "camera": {

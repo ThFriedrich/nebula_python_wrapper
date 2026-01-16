@@ -1,21 +1,21 @@
 import math
 def generate_circular_mesh(radius=1.0, segments=12, output_file="circle_mesh.tri"):
     """
-    生成一个由三角面片组成的圆形网格，并将数据写入文件。
+    Generate a circular mesh composed of triangle facets，并Convert数据写入file。
 
-    参数:
-        radius (float): 圆的半径
-        segments (int): 圆的分段数（越多越平滑）
-        output_file (str): 输出文件名
+    parameters:
+        radius (float): radius of circle
+        segments (int): 圆of分段数（more segments smoother）
+        output_file (str): outputfilename
     """
     vertices = []
     faces = []
 
-    # 中心点
+    # Center point
     center = (0, 0, 34)
     vertices.append(center)
 
-    # 生成圆的顶点
+    # generation圆of顶点
     for i in range(segments):
         angle = 2 * math.pi * i / segments
         x = radius * math.cos(angle)
@@ -23,14 +23,14 @@ def generate_circular_mesh(radius=1.0, segments=12, output_file="circle_mesh.tri
         z = 34
         vertices.append((x, y, z))
 
-    # 生成三角面片
+    # generation三角面片
     for i in range(segments):
-        v0 = 0  # 中心点
+        v0 = 0  # Center point
         v1 = 1 + i
         v2 = 1 + (i + 1) % segments
         faces.append((v0, v1, v2))
 
-    # 写入文件
+    # 写入file
     with open(output_file, "w") as f:
         for face in faces:
             v0, v1, v2 = face
@@ -41,7 +41,7 @@ def generate_circular_mesh(radius=1.0, segments=12, output_file="circle_mesh.tri
             line = f"-125 -125 {x0:.6f} {y0:.6f} {z0:.6f} {x1:.6f} {y1:.6f} {z1:.6f} {x2:.6f} {y2:.6f} {z2:.6f}\n"
             f.write(line)
 
-    print(f"圆形网格已生成并写入文件: {output_file}")
+    print(f"圆形网格已generationand write tofile: {output_file}")
 
 # 示例调用
 generate_circular_mesh(radius=17.0, segments=36, output_file="/home/chenguisen/AISI/nebula/nebula_python_wrapper/data/circle_mesh.tri")
